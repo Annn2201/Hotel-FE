@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native';
 import * as yup from 'yup'; 
 import { useFormik } from 'formik';
 import { loginApi } from '../services/authentication';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const AuthScreen = ({navigation}) => {
     const [ username, setUsername ] = useState<string>("")
     const [ password, setPassword ] = useState<string>("")
-    const validationSchema = yup.object({
-      username: yup.string().required('Tên đăng nhập không được bỏ trống').trim(),
-    //   password: yup.string().required('Mật khẩu không được bỏ trống').min(6).trim(),
-    });
+    const [ showpassword, setShowPassword ] = useState(false)
+    const img = { uri : "https://i.pinimg.com/736x/3a/ea/10/3aea107afa94a7cb6c2afd313c3bd173--a-hotel-hotel-offers.jpg"};
 
     const login = async () => {
         try {
@@ -28,6 +27,7 @@ const AuthScreen = ({navigation}) => {
     }
   
     return (
+      <ImageBackground source={img} resizeMode="cover" style = {{flex : 1, width : '100%'}} >
       <View style={styles.container}>
         <View style={styles.formContainer}>
           <Text style={styles.heading}>Đăng nhập</Text>
@@ -42,17 +42,19 @@ const AuthScreen = ({navigation}) => {
                 setUsername(value)}}
             />
           </View>
-  
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Mật khẩu</Text>
+          <Text style={styles.label} >Mật khẩu</Text>
+          <View style={[styles.inputContainer, {flexDirection: 'row'}, styles.input]}>
             <TextInput
-              style={styles.input}
               value={password}
               placeholder='Nhập password'
               onChangeText={(value) => {
                 setPassword(value)
               }}
+              secureTextEntry={!showpassword}
             />
+            <TouchableOpacity onPress={() => setShowPassword(!showpassword)}>
+                        <Icon name={password ? 'eye-slash' : 'eye'} size={20} />
+            </TouchableOpacity>
           </View>
   
           <TouchableOpacity style={styles.forgotPasswordLink}>
@@ -60,7 +62,7 @@ const AuthScreen = ({navigation}) => {
           </TouchableOpacity>
   
           <TouchableOpacity style={styles.loginButton} onPress={login}>
-            <Text>Đăng nhập</Text>
+            <Text style={styles.loginText}>Đăng nhập</Text>
           </TouchableOpacity>
           {/* <Button
             title="Đăng nhập"
@@ -80,12 +82,13 @@ const AuthScreen = ({navigation}) => {
   
           <TouchableOpacity style={styles.signupLink} onPress={() => navigation.navigate("RegisterScreen")}>
             <Text>
-              Chưa có tài khoản bấm{' '}v 
+              Chưa có tài khoản bấm{' '} 
               <Text style={styles.signupLinkText}>đăng ký</Text>
             </Text>
           </TouchableOpacity>
         </View>
       </View>
+      </ImageBackground>
     );
   };
   
@@ -95,9 +98,14 @@ const AuthScreen = ({navigation}) => {
       justifyContent: 'center',
       alignItems: 'center',
       padding: 16,
+      
     },
     formContainer: {
+      borderRadius: 10,
       width: '100%',
+      backgroundColor: '#fff',
+      opacity: 0.85,
+      padding: 50
     },
     heading: {
       fontSize: 24,
@@ -118,6 +126,9 @@ const AuthScreen = ({navigation}) => {
       borderRadius: 4,
       padding: 10,
       fontSize: 16,
+      alignItems: 'flex-end',
+      justifyContent: 'space-between'
+    
     },
     error: {
       color: 'red',
@@ -136,7 +147,6 @@ const AuthScreen = ({navigation}) => {
       fontSize: 18,
       borderRadius: 4,
       padding: 12,
-      textAlign: 'center',
     },
     separator: {
       alignItems: 'center',
@@ -166,6 +176,10 @@ const AuthScreen = ({navigation}) => {
       color: 'blue',
       textDecorationLine: 'underline',
     },
+    loginText: {
+      color: 'white',
+      textAlign: 'center'
+    }
   });
 
 export default AuthScreen;

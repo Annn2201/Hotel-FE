@@ -2,7 +2,7 @@ import axios from "axios";
 import { RegisterData } from "./interfaces/registerData";
 import { LoginData } from "./interfaces/loginData";
 
-const BASE_URL = 'http://192.168.0.111:8080/api/v1'
+const BASE_URL = 'http://172.20.10.8:8080/api/v1'
 
 export const registerApi = ({ email, username, password}: RegisterData) => {
     return axios({

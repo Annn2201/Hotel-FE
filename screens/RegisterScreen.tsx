@@ -25,8 +25,11 @@ const RegisterScreen = ({ navigation }) => {
         if (username === "") {
             return alert("Không bỏ trống username");
           }
-        if (password === "") {
-          return alert("Không bỏ trống password");
+        if (password === "") {c
+            return alert("Không bỏ trống password");
+        }
+        if (password.length < 8) {
+            return alert("Mật khẩu phải trên 8 kí tự")
         }
         // Validate email
         if (!validateEmail(email)) {
@@ -51,7 +54,7 @@ const RegisterScreen = ({ navigation }) => {
       };
     return(
         <KeyboardAvoidingView style={styles.container}>
-            <ImageBackground source={img} resizeMode="cover" style = {{flex : 1, width : '100%'}} >
+            {/* <ImageBackground source={img} resizeMode="cover" style = {{flex : 1, width : '100%'}} > */}
             <View style= {{flexDirection: 'row', justifyContent: 'space-between' }}><Image
                 source={{uri: 'https://symbols.vn/wp-content/uploads/2021/11/Bo-anh-icon-ngoi-nha-vector-pho-bien.png'}}
                 style={{width: 30, height: 30, margin: '7%'}}
@@ -93,17 +96,17 @@ const RegisterScreen = ({ navigation }) => {
             </KeyboardAvoidingView>
             <View style={styles.buttons}>
                 <TouchableOpacity style={styles.button} onPress={register}>
-                    <Text style = {{fontWeight : '700'}}>Đăng ký</Text>
+                    <Text style = {{fontWeight : '700', color: 'white'}}>Đăng ký</Text>
                 </TouchableOpacity>
             </View>
             <View style={styles.buttons}>
                 <TouchableOpacity style={styles.button} onPress={() => {
                 navigation.navigate("LoginScreen")
             }}>
-                    <Text style = {{fontWeight : '700'}}>Đăng nhập ở đây</Text>
+                    <Text style = {{fontWeight : '700', color: 'white'}}>Đăng nhập ở đây</Text>
                 </TouchableOpacity>
             </View>
-        </ImageBackground>
+        {/* </ImageBackground> */}
     </KeyboardAvoidingView>)
     }
 const styles = StyleSheet.create({
@@ -137,7 +140,7 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         fontSize:20,
         fontWeight: '700',
-        color: '#00CED1'
+        color: 'blue'
 
     },
     buttons: {
@@ -150,9 +153,10 @@ const styles = StyleSheet.create({
         borderColor: "#000",
         padding: 15,
         borderRadius: 5,
-        backgroundColor: "#00FFFF",
+        backgroundColor: "blue",
         alignItems: "center",
-        marginHorizontal:'7%'
+        marginHorizontal:'7%',
+        color:'white'
     }
 })
 export default RegisterScreen
