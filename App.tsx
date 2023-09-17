@@ -8,7 +8,7 @@ import AddTaskScreen from './screens/AddTaskScreen';
 import DetailTaskScreen from './screens/DetailTaskScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import LoginScreen from './screens/LoginScreen';
-
+import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 const StackNavigator = createStackNavigator({
   LoginScreen: {
     screen: LoginScreen
@@ -16,14 +16,17 @@ const StackNavigator = createStackNavigator({
   RegisterScreen: {
     screen: RegisterScreen
   },
-  HomeScreen: {
-    screen: HomeScreen
+  DetailTaskScreen: {
+    screen: DetailTaskScreen
+  },
+  ForgotPasswordScreen:{
+    screen: ForgotPasswordScreen
   },
   AddTaskScreen: {
     screen: AddTaskScreen
   },
-  DetailTaskScreen: {
-    screen: DetailTaskScreen
+  HomeScreen: {
+    screen: HomeScreen
   },
 })
 export default createAppContainer(StackNavigator)
