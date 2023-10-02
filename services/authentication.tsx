@@ -11,7 +11,7 @@ export const registerApi = ({ email, username, password}: RegisterData) => {
         data: {
             email,
             username,
-            password
+            passwordS
         }
     })
 }
