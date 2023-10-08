@@ -9,24 +9,28 @@ import DetailTaskScreen from './screens/DetailTaskScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import LoginScreen from './screens/LoginScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
+import TimeScreen from './screens/TimeScreen';
+import RoomScreen from './screens/RoomScreen';
 const StackNavigator = createStackNavigator({
   LoginScreen: {
     screen: LoginScreen
   },
+  HomeScreen: {
+    screen: HomeScreen
+  },
+  RoomScreen: {
+    screen: RoomScreen
+  },
   RegisterScreen: {
     screen: RegisterScreen
-  },
-  DetailTaskScreen: {
-    screen: DetailTaskScreen
   },
   ForgotPasswordScreen:{
     screen: ForgotPasswordScreen
   },
-  AddTaskScreen: {
-    screen: AddTaskScreen
-  },
-  HomeScreen: {
-    screen: HomeScreen
-  },
+  TimeScreen: {
+    screen: TimeScreen
+  }
+  }, {
+    initialRouteName: "LoginScreen"
 })
 export default createAppContainer(StackNavigator)

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button } from 'react-native';
-import { deleteTaskApi, getTaskByIdApi } from '../services/task';
-import { Task } from '../services/interfaces/task';
+import { deleteTaskApi, getTaskByIdApi } from '../services/room';
+import { Task } from '../services/interfaces/room';
 
 const DetailTaskScreen = ({navitagtion}) => {
     const taskId = navitagtion.getParam("taskId")

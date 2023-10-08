@@ -1,11 +1,11 @@
 import axios from "axios";
-import { Task } from "./interfaces/task";
-const BASE_URL = 'https://64f670e49d77540849524e71.mockapi.io/api/v1/'
+import { Room } from "./interfaces/room";
+const BASE_URL = 'http://192.168.0.111:8080/api/v1'
 
-export const listTaskApi = () => {
+export const listRoomsApi = () => {
     return axios({
         method: "GET",
-        url: BASE_URL.concat("task/"),
+        url: BASE_URL.concat("/rooms"),
     })
 }
 

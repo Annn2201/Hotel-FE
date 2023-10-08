@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native';
-import { useFormik } from 'formik';
-import { loginApi } from '../services/authentication';
+import { addTokenToAxios, getAccessToken, loginApi, setAccessToken } from '../services/authentication';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
-const AuthScreen = ({ navigation }) => {
-  const [username, setUsername] = useState<string>("")
-  const [password, setPassword] = useState<string>("")
-  const [showpassword, setShowPassword] = useState(false)
-  const login = async () => {
+const LoginScreen = ({navigation}) => {
+    const [ username, setUsername ] = useState<string>("")
+    const [ password, setPassword ] = useState<string>("")
+    const [ showpassword, setShowPassword ] = useState(false)
+    
+    const img = { uri : "https://i.pinimg.com/736x/3a/ea/10/3aea107afa94a7cb6c2afd313c3bd173--a-hotel-hotel-offers.jpg"};
+    const checkAuthenticated = async () => {
+      try {
+        const accessToken = await getAccessToken() 
+        if(accessToken) {
+          addTokenToAxios(accessToken)
+          navigation.navigate("HomeScreen")
+        } 
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    useEffect(() => {
+      checkAuthenticated()
+    }, [])
+    const login = async () => {
 
     if (username === "") {
       return alert("Tên đăng nhập không được bỏ trống");
@@ -16,22 +32,29 @@ const AuthScreen = ({ navigation }) => {
     if (password === "") {
       return alert("Mật khẩu không được bỏ trống");
     }
-    try {
-      const loginResponse = await loginApi({
-        username,
-        password
-      })
-      const { data } = loginResponse
-      alert("Đăng nhập thành công!")
-      navigation.navigate("HomeScreen")
-    } catch (err) {
-      const { data } = err.response
-      alert(data.message)
-    }
-  }
+        try {
+            const loginResponse = await loginApi({
+                username,
+                password,
+            })
+            const { data } = loginResponse 
+            console.log(data)
+            const result = await setAccessToken(data.token)
+            if(result) {
+                alert("Đăng nhập thành công!")
+                const accessToken = await getAccessToken()
+                navigation.navigate("HomeScreen")
+            }else {
+                alert("Lỗi khi đăng nhập: Không thể lưu accesstoken")
+            }
+        } catch(err) {
+            const {data} = err.response
+            alert(data.message)
+        }
+    } 
 
-  return (
-    <View style={styles.container}>
+    return (
+      <View style={styles.container}>
       <View style={styles.formContainer}>
         <Text style={styles.heading}>Đăng nhập</Text>
 
@@ -68,13 +91,6 @@ const AuthScreen = ({ navigation }) => {
         <TouchableOpacity style={styles.loginButton} onPress={login}>
           <Text style={styles.loginText}>Đăng nhập</Text>
         </TouchableOpacity>
-        {/* <Button
-            title="Đăng nhập"
-            onPress={formik.handleSubmit}
-            style={styles.loginButton}
-          /> */}
-
-
         <View style={styles.separator}>
           <Text style={styles.separatorText}>hoặc đăng nhập với</Text>
         </View>
@@ -202,4 +218,4 @@ const styles = StyleSheet.create({
   
 });
 
-export default AuthScreen;
+export default LoginScreen;

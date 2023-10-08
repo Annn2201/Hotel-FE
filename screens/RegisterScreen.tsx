@@ -85,15 +85,15 @@ const RegisterScreen = ({ navigation }) => {
                     <Text style={styles.label}>Nhập lại mật khẩu</Text>
                     <View style={[styles.input, { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }]}>
                         <TextInput
-                            value={password}
+                            value={rePassword}
                             placeholder='Nhập password'
                             onChangeText={(value) => {
-                                setPassword(value)
+                                setRePassword(value)
                             }}
                             secureTextEntry={!showpassword}
                         />
                         <TouchableOpacity onPress={() => setShowPassword(!showpassword)}>
-                            <Icon name={password ? 'eye-slash' : 'eye'} size={20} />
+                            <Icon name={rePassword ? 'eye-slash' : 'eye'} size={20} />
                         </TouchableOpacity>
                     </View>
                 </KeyboardAvoidingView>
