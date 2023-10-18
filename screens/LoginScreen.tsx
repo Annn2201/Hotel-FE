@@ -1,45 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity, Image, StyleSheet, ImageBackground } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { useFormik } from 'formik';
 import { addTokenToAxios, getAccessToken, loginApi, setAccessToken } from '../services/authentication';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import * as Yup from 'yup';
 
-const LoginScreen = ({navigation}) => {
-    const [ username, setUsername ] = useState<string>("")
-    const [ password, setPassword ] = useState<string>("")
-    const [ showpassword, setShowPassword ] = useState(false)
-    
-    const img = { uri : "https://i.pinimg.com/736x/3a/ea/10/3aea107afa94a7cb6c2afd313c3bd173--a-hotel-hotel-offers.jpg"};
-    const checkAuthenticated = async () => {
+const validationSchema = Yup.object().shape({
+  username: Yup.string().required('Tên đăng nhập không được bỏ trống'),
+  password: Yup.string().required('Mật khẩu không được bỏ trống'),
+});
+
+const LoginScreen = ({ navigation }) => {
+  const [showPassword, setShowPassword] = useState(false);
+  const checkAuthenticated = async () => {
+          try {
+            const accessToken = await getAccessToken()
+            if(accessToken) {
+              addTokenToAxios(accessToken)
+              navigation.navigate("HomeScreen")
+            }
+          } catch (error) {
+            alert("Sai mật khẩu hoặc passwword")
+          }
+        }
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+      password: '',
+    },
+    validationSchema,
+    onSubmit: async (values) => {
       try {
-        const accessToken = await getAccessToken() 
-        if(accessToken) {
-          addTokenToAxios(accessToken)
-          navigation.navigate("HomeScreen")
-        } 
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    useEffect(() => {
-      checkAuthenticated()
-    }, [])
-    const login = async () => {
-
-    if (username === "") {
-      return alert("Tên đăng nhập không được bỏ trống");
-    }
-    if (password === "") {
-      return alert("Mật khẩu không được bỏ trống");
-    }
-        try {
-            const loginResponse = await loginApi({
-                username,
-                password,
-            })
-            const { data } = loginResponse 
-            console.log(data)
-            const result = await setAccessToken(data.token)
+        const loginResponse = await loginApi({
+          username: values.username,
+          password: values.password,
+        });
+        const { data } = loginResponse;
+        const result = await setAccessToken(data.token)
             if(result) {
                 alert("Đăng nhập thành công!")
                 const accessToken = await getAccessToken()
@@ -49,58 +46,77 @@ const LoginScreen = ({navigation}) => {
             }
         } catch(err) {
             const {data} = err.response
-            alert(data.message)
+            alert("Sai mật khẩu hoac tài khoản")
         }
-    } 
+    },
+  });
 
-    return (
-      <View style={styles.container}>
+  return (
+    <View style={styles.container}>
       <View style={styles.formContainer}>
         <Text style={styles.heading}>Đăng nhập</Text>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Tên đăng nhập</Text>
           <TextInput
-            style={styles.input}
-            value={username}
+            style={{ borderWidth: 1,
+              borderColor: '#ccc',
+              borderRadius: 10,
+              padding: 10,
+              fontSize: 16,
+            }}
+            value={formik.values.username}
             placeholder="Nhập username"
-            onChangeText={(value) => {
-              setUsername(value)
-            }}
+            onChangeText={formik.handleChange('username')}
+            onBlur={formik.handleBlur('username')}
           />
-        </View>
-        <Text style={styles.label} >Mật khẩu</Text>
-        <View style={[styles.inputContainer, { flexDirection: 'row' }, styles.input]}>
-          <TextInput
-            value={password}
-            placeholder='Nhập password'
-            onChangeText={(value) => {
-              setPassword(value)
-            }}
-            secureTextEntry={!showpassword}
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showpassword)}>
-            <Icon name={password ? 'eye-slash' : 'eye'} size={20} />
-          </TouchableOpacity>
+          {formik.touched.username && formik.errors.username ? (
+            <Text style={styles.error}>{formik.errors.username}</Text>
+          ) : null}
         </View>
 
-        <TouchableOpacity style={styles.forgotPasswordLink} onPress={() => navigation.navigate("ForgotPasswordScreen")}>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Mật khẩu</Text>
+          <View style={{flexDirection: 'row', justifyContent:'space-between', borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 10}}>
+            <TextInput
+                value={formik.values.password}
+                placeholder="Nhập password"
+                onChangeText={formik.handleChange('password')}
+                onBlur={formik.handleBlur('password')}
+                secureTextEntry={!showPassword}
+                style={styles.input}
+
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+              <Icon style={{margin: 12}} name={showPassword ? 'eye-slash' : 'eye'} size={20} />
+            </TouchableOpacity>
+          </View>
+
+        </View>
+        {formik.touched.password && formik.errors.password ? (
+          <Text style={styles.error}>{formik.errors.password}</Text>
+        ) : null}
+
+        <TouchableOpacity style={styles.forgotPasswordLink} onPress={() => navigation.navigate('ForgotPasswordScreen')}>
           <Text style={styles.forgotPasswordText}>Quên mật khẩu</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.loginButton} onPress={login}>
+        <TouchableOpacity style={styles.loginButton} onPress={formik.handleSubmit}>
           <Text style={styles.loginText}>Đăng nhập</Text>
         </TouchableOpacity>
+
         <View style={styles.separator}>
           <Text style={styles.separatorText}>hoặc đăng nhập với</Text>
         </View>
+
         <TouchableOpacity style={styles.loginButtongg}>
-        <Image
-            source={require('../assets/google.png')}
-            style={{width: 20, height: 20, margin: '3%'}}/>
-            <Text style={styles.loginTextgg}>Đăng nhập bằng google</Text>
+          <Image source={require('../assets/google.png')} style={{ width: 20, height: 20, margin: 3 }} />
+          <Text style={styles.loginTextgg}>Đăng nhập bằng Google</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.signupLink} onPress={() => navigation.navigate("RegisterScreen")}>
+
+        <TouchableOpacity style={styles.signupLink} onPress={() => navigation.navigate('RegisterScreen')}>
           <Text>
             Chưa có tài khoản{' '}
             <Text style={styles.signupLinkText}>đăng ký</Text>
@@ -118,15 +134,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     backgroundColor: '#003399',
-
-
   },
   formContainer: {
     borderRadius: 10,
     width: '100%',
     backgroundColor: '#fff',
     opacity: 1,
-    padding: 50
+    padding: 50,
   },
   heading: {
     fontSize: 24,
@@ -142,14 +156,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
     padding: 10,
     fontSize: 16,
-    alignItems: 'flex-end',
-    justifyContent: 'space-between'
-
   },
   error: {
     color: 'red',
@@ -169,11 +177,11 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 10,
   },
-  loginButtongg:{
+  loginButtongg: {
     borderWidth: 3,
     borderColor: '#ccc',
     borderRadius: 10,
-    color:'black',
+    color: 'black',
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -204,18 +212,16 @@ const styles = StyleSheet.create({
   signupLinkText: {
     color: 'blue',
     textDecorationLine: 'underline',
-    
   },
   loginText: {
     color: 'white',
-    textAlign: 'center'
+    textAlign: 'center',
   },
   loginTextgg: {
     color: 'black',
     textAlign: 'center',
     padding: 16,
   },
-  
 });
 
 export default LoginScreen;

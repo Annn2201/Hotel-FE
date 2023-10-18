@@ -1,13 +1,23 @@
-import { View,Text, SafeAreaView, StyleSheet,Image,TouchableOpacity, Modal, FlatList } from 'react-native';
+import { View,Text, SafeAreaView, StyleSheet,Image,TouchableOpacity, Modal, FlatList} from 'react-native';
 import {useEffect, useState} from 'react'
 import React from 'react';
 import { Room } from '../services/interfaces/room';
 import { listRoomsApi } from '../services/room';
+import axios from 'axios';
+import Icon from "react-native-vector-icons/FontAwesome";
 
 const RoomScreen = ({navigation})=> {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [rooms, setRooms] = useState<Room[]>([])
   const [modalloc , setModalloc] = useState(false)
+  const [selectedRoomRank, setSelectedRoomRank] = useState(null);
+  const [selectedRoomType, setSelectedRoomType] = useState(null);
+  const [imageUrls, setImageUrls] = useState([])
+  const roomRank = navigation.getParam("roomRank")
+  const roomType = navigation.getParam("roomType")
+  const startDate = navigation.getParam("startDate")
+  const endDate = navigation.getParam("endDate")
+  const nights = navigation.getParam("nights")
   const loc = () =>{
     setModalloc(true)
   }
@@ -33,14 +43,12 @@ const RoomScreen = ({navigation})=> {
     setIsPressed(false);
   };
 
-  const [isPressed1, setIsPressed1] = useState(false);
-
-  const handlePressIn1 = () => {
-    setIsPressed1(true);
+  const handleRoomTypeSelect = (roomType) => {
+    setSelectedRoomType(roomType);
   };
 
-  const handlePressOut1 = () => {
-    setIsPressed1(false);
+  const handleRoomRankSelect = (roomRank) => {
+    setSelectedRoomRank(roomRank);
   };
 
   const [chonsapxep, setChonsapxep] = useState(1)
@@ -48,75 +56,89 @@ const RoomScreen = ({navigation})=> {
     setChonsapxep(id)
   } 
 
-  const getRoomData = async () => {
+  const getRoomDataWithOutFilter = async () => {
     setIsLoading(true)
     try {
-        const listRoomsResponse = await listRoomsApi()
-        const { data } = listRoomsResponse
-        // console.log(data)
-        setRooms(data)
+      const listRoomsResponse = await listRoomsApi()
+      const { data } = listRoomsResponse
+      setRooms(data)
     } catch(err) {
-        const errorMessage = err.response
-        alert(errorMessage)
+      const errorMessage = err.response
+      alert(errorMessage)
     }
     setIsLoading(false)
   }
 
-  const renderTask = ({ item }: { item: Room }) => {
+  const applyFilters = () => {
+    axios({
+      method: "GET",
+      url: "http://192.168.1.99:8080/api/v1/rooms",
+      params: {
+          roomRank: selectedRoomRank,
+          roomType: selectedRoomType,      }
+    })
+      .then((response) => {
+        const rooms = response.data;
+        setRooms(rooms)
+      })
+      .catch((error) => {
+        console.error('Lỗi trong quá trình GET request:', error);
+      });
+  };
+  const renderRoom = ({ item }: { item: Room }) => {
     return (
     <TouchableOpacity style={styles.listItem} onPress={() => {
-        navigation.navigate("DetailTaskScreen", { taskId: item.id })
-    }}> 
-            <Text style={styles.roomName}>{item.roomName}</Text>
-            <Text style={styles.roomPrice}>{item.pricePerNight}</Text>
+        navigation.navigate("DetailRoomScreen", { roomCode: item.roomCode, startDate: startDate, endDate: endDate })
+    }}>
+      <View style={styles.room}>
+        <View style={styles.roomDetail}>
+          <Text style={styles.roomName}>{item.roomName}</Text>
+          <Text>Hạng phòng: {item.roomRank}</Text>
+          <Text>Loại phòng: {item.roomType}</Text>
+          <Text style={styles.roomPrice}>{item.pricePerNight}</Text>
+        </View>
+        <Image style={styles.image} source={{uri: item.images[0]}}></Image>
+      </View>
     </TouchableOpacity>
   
     )
   }
   useEffect(() => {
-    getRoomData()
-}, []) 
+    getRoomDataWithOutFilter()
+  }, [])
 
   return (
     <View style = {{flex: 1}}>
       <View style = {styles.container}>
-        <View style={{justifyContent:'center',marginLeft:15}}>
+        <View style={{justifyContent:'center',marginLeft:10}}>
           <TouchableOpacity onPress={() => {
             navigation.navigate("HomeScreen")
           }}><Image style={styles.img} source = {require('../assets/PngItem_2022960.png')}/></TouchableOpacity>
         </View>
         <View style={styles.header}>
-          <TouchableOpacity><Image style={styles.img} source = {require('../assets/3cham.png')}/></TouchableOpacity>
-          <Text>|</Text>
-          <TouchableOpacity><Image style={styles.img} source = {require('../assets/pngegg.png')}/></TouchableOpacity>
+          <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20}}>Danh sách phòng</Text>
         </View>
       </View>
-
       <View style={styles.lich}>
         <View style={styles.lich1}>
-          <Image style={styles.img1} source={require('../assets/calendar.png')} />
-          <Text style={styles.text2}>02/02/2020</Text>
+          <Icon name="calendar" size={20} color={'white'} style={{marginRight: 5}}/>
+          <Text style={styles.text2}>{startDate}</Text>
         </View>
         <View style={styles.lich1}>
-          <Image style={styles.img1} source={require('../assets/crescent-moon.png')} />
-          <Text style={styles.text2}>2</Text>
+          <Icon name="star" size={20} color={'white'} style={{marginRight: 5}}/>
+          <Text style={styles.text2}>{nights}</Text>
         </View>
-        <View style={styles.lich1}>
-          <Image style={styles.img1} source={require('../assets/door.png')} />
-          <Text style={styles.text2}>2</Text>
-        </View>
-        <View style={styles.lich1}>
-          <Image style={styles.img1} source={require('../assets/user.png')} />
-          <Text style={styles.text2}>2</Text>
-        </View>
-        <Image style={styles.img1} source={require('../assets/down-arrow.png')} />
       </View> 
       <View style = {styles.search}>
         <View style= {styles.searchsmall1}>
           <TouchableOpacity  onPress = {(loc)}> 
             <View style={{flexDirection:'row',}}>
               <Image style={styles.img2} source = {require('../assets/funnel.png')}/>
-              <Text>lọc</Text>
+              { isPressed ? (
+                  <Text>đã lọc</Text>
+              ) : (
+                  <Text>lọc</Text>
+              )}
             </View>
           </TouchableOpacity>
         </View>
@@ -126,12 +148,12 @@ const RoomScreen = ({navigation})=> {
           </View>
         </TouchableOpacity> 
       </View>
-      <FlatList 
-            onRefresh={getRoomData} 
+      <FlatList
+            onRefresh={getRoomDataWithOutFilter}
             refreshing={isLoading}
             style={styles.listRoom} 
             data={rooms} 
-            renderItem={(item) => renderTask(item)} />
+            renderItem={(item) => renderRoom(item)} />
       <Modal visible={modalloc} transparent={true} animationType='slide'>
         <View style= {styles.modal}>
           <View style= {styles.modal1}>
@@ -139,40 +161,67 @@ const RoomScreen = ({navigation})=> {
               <Text style= {styles.textheadermodal}>Lọc</Text>
               <TouchableOpacity style= {{marginLeft:'33%'}} onPress={(dongloc)}><Text style={styles.textheadermodal2}>X</Text></TouchableOpacity>
             </View>
-            <View style={{marginVertical:15,borderColor:'rgba(0,0,0,0.1)',borderBottomWidth:10}}>
-              <Text style = {{fontSize:20,fontWeight:'600'}}>Hạng phòng</Text>
-              <View style={{flexDirection:'row',justifyContent:'space-evenly', marginVertical:15}}>
-                <View style={styles.textlocmodal}><Text>1 sao </Text></View>
-                <View style={styles.textlocmodal}><Text>2 sao </Text></View>
-                <View style={styles.textlocmodal}><Text>3 sao </Text></View>
-                <View style={styles.textlocmodal}><Text>4 sao </Text></View>
-                <View style={styles.textlocmodal}><Text>5 sao </Text></View>
+            <View style={{ marginVertical: 15, borderColor: 'rgba(0,0,0,0.1)', borderBottomWidth: 10, height: 150 }}>
+              <Text style={{ fontSize: 20, fontWeight: '600', marginHorizontal: 10 }}>Hạng phòng</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginVertical: 10 }}>
+                <TouchableOpacity onPress={() => {handleRoomRankSelect('STANDARD'),setIsPressed(true)}}
+                                  style={styles.textlocmodal}>
+                  <Text>STANDARD</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.textlocmodal} onPress={() => {handleRoomRankSelect('SUPERIOR'), setIsPressed(true)}}>
+                  <Text>SUPERIOR</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.textlocmodal} onPress={() => {handleRoomRankSelect('DELUXE'), setIsPressed(true)}}>
+                  <Text>DELUXE</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.textlocmodal} onPress={() => {handleRoomRankSelect('SUIT'), setIsPressed(true)}}>
+                  <Text>SUIT</Text>
+                </TouchableOpacity>
               </View>
+              {selectedRoomRank ? (
+                  <Text style={{ marginHorizontal: 10 }}>Bạn đã chọn phòng {selectedRoomRank}</Text>
+              ) : (
+                  roomRank && <Text style={{ marginHorizontal: 10 }}>Bạn đã chọn phòng {roomRank}</Text>
+              )}
             </View>
-            <View style={{borderBottomWidth:10,borderColor:'rgba(0,0,0,0.1)'}}>
-              <Text style = {{fontSize:20,fontWeight:'600'}}>Loại Phòng</Text>
+            <View style={{borderBottomWidth:10,borderColor:'rgba(0,0,0,0.1)', height: 150}}>
+              <Text style = {{fontSize:20,fontWeight:'600', marginHorizontal: 10 }}>Loại Phòng</Text>
               <View style={{marginLeft:30,marginBottom:30}}>
-                <Text>1 giường đơn</Text>
+              <TouchableOpacity onPress={() => {handleRoomTypeSelect('SINGLE BEDROOM'), setIsPressed(true)}}>
+              <Text>1 giường đơn</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {handleRoomTypeSelect('TWIN BEDROOM'), setIsPressed(true)}}>
                 <Text>2 giường đơn</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {handleRoomTypeSelect('DOUBLE BEDROOM'), setIsPressed(true)}}>
                 <Text>1 giường đôi</Text>
-                <Text>2 giường đôi</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {handleRoomTypeSelect('TRIPLE BEDROOM'), setIsPressed(true)}}>
+                <Text>1 giường 3 hoặc 3 giường đơn</Text>
+              </TouchableOpacity>
+              {selectedRoomType && <Text >Bạn đã chọn phòng {selectedRoomType}</Text>}
               </View>
             </View>
-            <View style={{flexDirection:'row',justifyContent:'space-evenly',marginTop:10}}>
-              <TouchableOpacity style={{backgroundColor:isPressed ? '#3399ff':'white' }} 
-                                        onPressIn={handlePressIn}
-                                        onPressOut={handlePressOut}>
+            <View style={{height: 100, backgroundColor:'white', flexDirection:'row', justifyContent:'space-evenly', marginTop: 15}}>
+              <TouchableOpacity
+                  onPress={() => {setSelectedRoomRank(null), setSelectedRoomType(null), setIsPressed(false), getRoomDataWithOutFilter()}}>
                 <View style={styles.buttonmodalloc}>
-                  <Text style = {{color:isPressed ? 'white':'black'}}  > Xóa bộ lọc</Text>
+                  <Text > Xóa bộ lọc</Text>
                 </View>
               </TouchableOpacity >
-               <TouchableOpacity style={{backgroundColor:isPressed1 ? '#3399ff':'white' }} 
-                                        onPressIn={handlePressIn1}
-                                        onPressOut={handlePressOut1}>
-                <View style={styles.buttonmodalloc}>
-                  <Text style = {{color:isPressed1 ? 'white':'black'}} >Áp dụng</Text>
-                </View>
-              </TouchableOpacity>
+              <TouchableOpacity onPressIn={handlePressIn}
+                                // onPressOut={handlePressOut}
+                                onPress={applyFilters}>
+                  <View style={{height:50,
+                    width:150,
+                    borderRadius: 10,
+                    justifyContent:'center',
+                    alignItems:'center',
+                    backgroundColor:'#3399ff' }}>
+                    <Text style = {{color: 'white'}}
+                    >Áp dụng</Text>
+                  </View>
+                </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -197,7 +246,6 @@ const RoomScreen = ({navigation})=> {
                    <Text>    Giá cao nhất   </Text>
                    {chonsapxep == 3 && <Image style={{height:20,width:20,resizeMode:'contain',marginLeft:'55%'}} source={require('../assets/tichxanh.png')}/>}
               </TouchableOpacity>
-            
             </View>
           </View>
         </View>
@@ -205,10 +253,6 @@ const RoomScreen = ({navigation})=> {
     </View>
   );
 }
-
-
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -221,21 +265,16 @@ const styles = StyleSheet.create({
     height:15,
     width:15,
     resizeMode:'contain',
-    marginHorizontal:5
+    marginHorizontal:10
   },
   header:{
     flexDirection:'row',
-    borderWidth:2,
-    alignItems:'center',
-    justifyContent:'space-between',
     alignSelf:'center',
     marginVertical:38,
     marginRight:20,
-    borderRadius:20,
-    backgroundColor:'grey',
     height:25,
-    width:60,
-    borderColor:'grey'
+    width: '100%',
+    borderColor:'grey',
   },
   lich:{
     height:30,
@@ -277,7 +316,7 @@ const styles = StyleSheet.create({
     marginLeft:20,
     borderWidth:1,
     height:32,
-    width:60,
+    width:100,
     alignItems:'center',
     justifyContent:'center',
     borderRadius:30
@@ -298,13 +337,15 @@ const styles = StyleSheet.create({
   },  
   modal:{
     flex:1,
-    backgroundColor: 'rgba(0,0,0,0.5)'
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    width: '100%',
+    height: 300
   },
   modal1:{
     backgroundColor:'white',
     marginTop:'50%',
     width:'100%',
-    height:'50%',
+    height: 400,
     borderTopLeftRadius:10,
     borderTopRightRadius:10,
   },
@@ -329,10 +370,10 @@ const styles = StyleSheet.create({
     borderWidth:1,
     borderColor:'rgba(0,0,0,0.2)',
     height:35,
-    width:60,
+    width:100,
     alignItems:'center',
     justifyContent:'center',
-    borderRadius:25
+    borderRadius:25,
   },
   buttonmodalloc:{
     height:50,
@@ -340,7 +381,8 @@ const styles = StyleSheet.create({
     borderWidth:2,
     borderColor:'#3399ff',
     justifyContent:'center',
-    alignItems:'center'
+    alignItems:'center',
+    borderRadius: 10
   },
   modal2:{
     backgroundColor:'white',
@@ -363,24 +405,47 @@ const styles = StyleSheet.create({
     backgroundColor:'rgba(51, 153, 255,0.5)',
   },
   listItem: {
-    height: 100,
+    height: 180,
     width: "100%",
-    marginBottom: 1,
+    marginVertical: 10,
     backgroundColor: "#fff",
     padding: 10,
     justifyContent: "center"
 },
-roomName: {
-  fontWeight: "600",
-  fontSize: 18,
-  marginBottom: 5
-},
-roomPrice: {
+  roomName: {
+    fontWeight: "600",
+    fontSize: 18,
+    marginBottom: 5
+  },
+  roomPrice: {
+    color: '#3399ff',
+    fontWeight: 'bold',
+    fontSize: 30
+  },
+  listRoom: {
+    flex: 1,
+  },
+  image: {
+    width: 120,
+    height: 180,
+    borderRadius: 15,
+    marginHorizontal: 10
+  },
+  room: {
+    flexDirection: "row-reverse",
+    justifyContent: 'flex-end',
+  },
+  roomDetail: {
+    margin: 20
+  },
+  button: {
+    // backgroundColor: '#0099ff',
+    // paddingVertical: 10,
+    // paddingHorizontal: 20,
+    // borderRadius: 5,
+    // width: 120
+  },
 
-},
-listRoom: {
-  flex: 1,
-},
 
 });
 export default RoomScreen

@@ -1,47 +1,34 @@
 import axios from "axios";
 import { Room } from "./interfaces/room";
-const BASE_URL = 'http://192.168.0.111:8080/api/v1'
+import {date} from "yup";
+// const BASE_URL = 'http://192.168.0.111:8080/api/v1'
+const BASE_URL = 'http://192.168.1.99:8080/api/v1'
 
-export const listRoomsApi = () => {
+export const listRoomsApi = (selectedRoomRank: string, selectedRoomType: string) => {
     return axios({
         method: "GET",
         url: BASE_URL.concat("/rooms"),
-    })
-}
-
-export const addTaskApi = ({ title, content }: Task) => {
-    return axios({
-        method: "POST",
-        url: BASE_URL.concat("task"),
-        data: {
-            title,
-            content
+        params: {
+            roomRank: selectedRoomRank,
+            roomType: selectedRoomType,
         }
     })
 }
 
-export const updateTaskApi = ({ title, content, id }: Task) => {
-    return axios({
-        method: "PUT",
-        url: BASE_URL.concat("/task/").concat(id),
-        data: {
-            title,
-            content
-        }
-    })
-}
-
-export const getTaskByIdApi = (id: string) => {
+export const getRoomByRoomCodeApi = (roomCode: string) => {
     return axios({
         method: "GET",
-        url: BASE_URL.concat("/task/").concat(id)
+        url: BASE_URL.concat("/rooms/").concat(roomCode)
     })
 }
 
-
-export const deleteTaskApi = (id: string) => {
+export const bookRoomByUserApi = (roomCode: string, startDate: string, endDate: string) => {
     return axios({
-        method: "DELETE",
-        url: BASE_URL.concat("/task/").concat(id)
-    })
+            method: "POST",
+            url: BASE_URL.concat(`/rooms/${roomCode}/${startDate}/${endDate}`),
+            data: {
+                startDate: startDate,
+                endDate: endDate
+            }
+        });
 }
