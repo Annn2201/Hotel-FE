@@ -5,6 +5,7 @@ import { Room } from '../services/interfaces/room';
 import { listRoomsApi } from '../services/room';
 import axios from 'axios';
 import Icon from "react-native-vector-icons/FontAwesome";
+import {addTokenToAxios} from "../services/authentication";
 
 const RoomScreen = ({navigation})=> {
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -12,9 +13,6 @@ const RoomScreen = ({navigation})=> {
   const [modalloc , setModalloc] = useState(false)
   const [selectedRoomRank, setSelectedRoomRank] = useState(null);
   const [selectedRoomType, setSelectedRoomType] = useState(null);
-  const [imageUrls, setImageUrls] = useState([])
-  const roomRank = navigation.getParam("roomRank")
-  const roomType = navigation.getParam("roomType")
   const startDate = navigation.getParam("startDate")
   const endDate = navigation.getParam("endDate")
   const nights = navigation.getParam("nights")
@@ -39,9 +37,6 @@ const RoomScreen = ({navigation})=> {
     setIsPressed(true);
   };
 
-  const handlePressOut = () => {
-    setIsPressed(false);
-  };
 
   const handleRoomTypeSelect = (roomType) => {
     setSelectedRoomType(roomType);
@@ -69,21 +64,23 @@ const RoomScreen = ({navigation})=> {
     setIsLoading(false)
   }
 
-  const applyFilters = () => {
-    axios({
-      method: "GET",
-      url: "http://192.168.1.99:8080/api/v1/rooms",
-      params: {
-          roomRank: selectedRoomRank,
-          roomType: selectedRoomType,      }
-    })
-      .then((response) => {
-        const rooms = response.data;
-        setRooms(rooms)
-      })
-      .catch((error) => {
-        console.error('Lỗi trong quá trình GET request:', error);
-      });
+  const applyFilters = async () => {
+    try {
+      const listRoomsResponse = await listRoomsApi(selectedRoomRank, selectedRoomType)
+      const { data } = listRoomsResponse
+      setRooms(data)
+    } catch(err) {
+      const errorMessage = err.response
+      alert(errorMessage)
+    }
+  };
+  const [showUserOptions, setShowUserOptions] = useState(false);
+  const toggleUserOptionsModal = () => {
+    setShowUserOptions(!showUserOptions);
+  };
+  const handleLogout = () => {
+    navigation.navigate("LoginScreen")
+    addTokenToAxios("")
   };
   const renderRoom = ({ item }: { item: Room }) => {
     return (
@@ -117,6 +114,7 @@ const RoomScreen = ({navigation})=> {
         </View>
         <View style={styles.header}>
           <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20}}>Danh sách phòng</Text>
+          <Icon onPress={toggleUserOptionsModal} name={'bars'} size={30} color={'white'} style={{marginLeft: 160}}></Icon>
         </View>
       </View>
       <View style={styles.lich}>
@@ -162,7 +160,7 @@ const RoomScreen = ({navigation})=> {
               <TouchableOpacity style= {{marginLeft:'33%'}} onPress={(dongloc)}><Text style={styles.textheadermodal2}>X</Text></TouchableOpacity>
             </View>
             <View style={{ marginVertical: 15, borderColor: 'rgba(0,0,0,0.1)', borderBottomWidth: 10, height: 150 }}>
-              <Text style={{ fontSize: 20, fontWeight: '600', marginHorizontal: 10 }}>Hạng phòng</Text>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', marginHorizontal: 10 }}>Hạng phòng</Text>
               <View style={{ flexDirection: 'row', justifyContent: 'space-evenly', marginVertical: 10 }}>
                 <TouchableOpacity onPress={() => {handleRoomRankSelect('STANDARD'),setIsPressed(true)}}
                                   style={styles.textlocmodal}>
@@ -178,14 +176,12 @@ const RoomScreen = ({navigation})=> {
                   <Text>SUIT</Text>
                 </TouchableOpacity>
               </View>
-              {selectedRoomRank ? (
+              {selectedRoomRank &&
                   <Text style={{ marginHorizontal: 10 }}>Bạn đã chọn phòng {selectedRoomRank}</Text>
-              ) : (
-                  roomRank && <Text style={{ marginHorizontal: 10 }}>Bạn đã chọn phòng {roomRank}</Text>
-              )}
+              }
             </View>
             <View style={{borderBottomWidth:10,borderColor:'rgba(0,0,0,0.1)', height: 150}}>
-              <Text style = {{fontSize:20,fontWeight:'600', marginHorizontal: 10 }}>Loại Phòng</Text>
+              <Text style = {{fontSize:20,fontWeight:'bold', marginHorizontal: 10 }}>Loại Phòng</Text>
               <View style={{marginLeft:30,marginBottom:30}}>
               <TouchableOpacity onPress={() => {handleRoomTypeSelect('SINGLE BEDROOM'), setIsPressed(true)}}>
               <Text>1 giường đơn</Text>
@@ -247,6 +243,31 @@ const RoomScreen = ({navigation})=> {
                    {chonsapxep == 3 && <Image style={{height:20,width:20,resizeMode:'contain',marginLeft:'55%'}} source={require('../assets/tichxanh.png')}/>}
               </TouchableOpacity>
             </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal visible={showUserOptions} transparent animationType={"fade"}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={toggleUserOptionsModal}>
+              <Icon name={'close'} style={styles.closeButton}/>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              navigation.navigate("UserDetailScreen");
+              toggleUserOptionsModal();
+            }}>
+              <Text style={styles.modalOption}>Thông tin cá nhân</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              // Điều hướng đến trang đổi mật khẩu
+              navigation.navigate("ChangePassword");
+              toggleUserOptionsModal(); // Đóng modal sau khi điều hướng
+            }}>
+              <Text style={styles.modalOption}>Đổi mật khẩu</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleLogout}>
+              <Text style={styles.modalOption}>Đăng xuất</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -411,7 +432,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 10,
     justifyContent: "center"
-},
+  },
   roomName: {
     fontWeight: "600",
     fontSize: 18,
@@ -438,14 +459,30 @@ const styles = StyleSheet.create({
   roomDetail: {
     margin: 20
   },
-  button: {
-    // backgroundColor: '#0099ff',
-    // paddingVertical: 10,
-    // paddingHorizontal: 20,
-    // borderRadius: 5,
-    // width: 120
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+  },
+  modalContent: {
+    width: 200,
+    height: '100%',
+    backgroundColor: 'white',
+    padding: 20,
+  },
+  modalOption: {
+    fontSize: 18,
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    color: 'blue',
   },
 
-
+  closeButton: {
+    fontSize: 18,
+    padding: 10,
+    alignSelf: 'flex-end',
+    color: 'red',
+  },
 });
 export default RoomScreen

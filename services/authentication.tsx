@@ -3,13 +3,16 @@ import { RegisterData } from "./interfaces/registerData";
 import { LoginData } from "./interfaces/loginData";
 import * as SecureStore from 'expo-secure-store';
 
-// const BASE_URL = 'http://192.168.0.111:8080/api/v1'
-const BASE_URL = 'http://192.168.1.99:8080/api/v1'
-export const registerApi = ({ email, username, password}: RegisterData) => {
+const BASE_URL = 'http://192.168.0.111:8080/api/v1'
+// const BASE_URL = 'http://192.168.1.99:8080/api/v1'
+export const registerApi = ({ lastName, firstName, identifyNumber ,email, username, password}: RegisterData) => {
     return axios({
         method: "POST",
         url: BASE_URL.concat("/register"),
         data: {
+            lastName,
+            firstName,
+            identifyNumber,
             email,
             username,
             password

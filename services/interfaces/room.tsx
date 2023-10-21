@@ -6,9 +6,8 @@ export interface Room {
     roomType: string
     roomRank: string
     description: string
-    checkInTime: DateData
-    checkOutTime: DateData
-    population: BigInt
     roomName: string
+    startDate: string
+    endDate: string
     images: string[]
 }

@@ -8,6 +8,9 @@ import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
 import TimeScreen from './screens/TimeScreen';
 import RoomScreen from './screens/RoomScreen';
 import DetailRoomScreen from "./screens/DetailRoomScreen";
+import ListBookingRoom from "./screens/ListBookingRoom";
+import ListBookingRoomScreen from "./screens/ListBookingRoom";
+import UserDetailScreen from "./screens/UserDetailScreen";
 const StackNavigator = createStackNavigator({
   LoginScreen: {
     screen: LoginScreen
@@ -30,10 +33,16 @@ const StackNavigator = createStackNavigator({
   DetailRoomScreen: {
     screen: DetailRoomScreen
   },
+  ListBookingRoomScreen: {
+    screen: ListBookingRoomScreen
+  },
+  UserDetailScreen: {
+    screen: UserDetailScreen
+  }
   }, {
     initialRouteName: "LoginScreen",
     defaultNavigationOptions: {
-    headerShown: false,
+      headerShown: false
     },
 })
 export default createAppContainer(StackNavigator)

@@ -2,39 +2,18 @@
 import React, {useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {View, Text, StyleSheet, Image, TouchableOpacity, Modal, FlatList, StatusBar, Button, SafeAreaView} from 'react-native';
-import moment from 'moment';
 import 'moment/locale/vi';
 import Swiper from 'react-native-swiper';
-import { Calendar, LocaleConfig } from 'react-native-calendars';
-import {listRoomsApi} from "../services/room";
 import {Room} from "../services/interfaces/room";
 import axios from "axios/index";
 import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
+import {listRoomsApi} from "../services/room";
+import {addTokenToAxios} from "../services/authentication";
 
 
 const HomeScreen = ({ navigation }) => {
 
     const [rooms, setRooms] = useState<Room[]>([])
-    const [modalloc, setModalloc] = useState(false)
-    const [selectedRoomRank, setSelectedRoomRank] = useState(null);
-    const [selectedRoomType, setSelectedRoomType] = useState(null);
-    const roomRank = navigation.getParam("roomRank")
-    const roomType = navigation.getParam("roomType")
-    const loc = () => {
-        setModalloc(true)
-    }
-    const dongloc = () => {
-        setModalloc(false)
-    }
-    const [isPressed, setIsPressed] = useState(false);
-
-    const handlePressIn = () => {
-        setIsPressed(true);
-    };
-
-    const handlePressOut = () => {
-        setIsPressed(false);
-    };
 
     const images = [
         require('../assets/phongkhachsan.png'),
@@ -113,29 +92,31 @@ const HomeScreen = ({ navigation }) => {
         showModeForEndDate('date');
     };
 
-    const getByPopulation = () => {
-        axios({
-            method: "GET",
-            url: "http://192.168.1.99:8080/api/v1/rooms",
-            params: {
-                sortBy: 'population'
-            }
-        })
-            .then((response) => {
-                const rooms = response.data;
-                setRooms(rooms)
-            })
-            .catch((error) => {
-                console.error('Lỗi trong quá trình GET request:', error);
-            });
+    const getByPopulation = async () => {
+        try {
+            const listRoomsResponse = await listRoomsApi(null, null, 'population')
+            const { data } = listRoomsResponse
+            setRooms(data)
+        } catch(err) {
+            const errorMessage = err.response
+            alert(errorMessage)
+        }
     };
     useEffect(() => {
         getByPopulation()
     }, [])
+    const [showUserOptions, setShowUserOptions] = useState(false);
+    const toggleUserOptionsModal = () => {
+        setShowUserOptions(!showUserOptions);
+    };
+    const handleLogout = () => {
+        navigation.navigate("LoginScreen")
+        addTokenToAxios("")
+    };
     const renderRoom = ({ item }: { item: Room }) => {
         return (
             <TouchableOpacity onPress={() => {
-                navigation.navigate("DetailRoomScreen", { roomCode: item.roomCode })
+                navigation.navigate("DetailRoomScreen", { roomCode: item.roomCode, startDate: startDate.toDateString(), endDate: endDate.toDateString()  })
             }}>
                 <View>
 
@@ -144,13 +125,16 @@ const HomeScreen = ({ navigation }) => {
                     <Text style={styles.textInside}>Giá phòng: {item.pricePerNight}</Text>
                 </View>
             </TouchableOpacity>
-
         )}
 
     return (
         <View style={styles.container}>
             <StatusBar barStyle= 'default'/>
             <Image source={require('../assets/1000_F_225066596_oxfYvjQat3pPSFvrjplG8AUC3ZTmJxHy.jpg')} style={styles.logo} />
+            <TouchableOpacity style={styles.room} onPress={() => navigation.navigate("ListBookingRoomScreen")}>
+                <Icon name={'home'} size={40} color={'white'}></Icon>
+                <Icon style={styles.userIcon} name={'user'} size={40} color={'white'} onPress={toggleUserOptionsModal}></Icon>
+            </TouchableOpacity>
             <View style={styles.formContainer}>
                 <View style={styles.dateHeader}>
                     <Text style={{textAlign: 'center', fontSize: 20, margin:10, fontWeight: 'bold'}}>Chọn ngày đến và đi</Text>
@@ -223,7 +207,32 @@ const HomeScreen = ({ navigation }) => {
                     </View>
                 </View>
             </View>
+            <Modal visible={showUserOptions} transparent animationType={"fade"}>
+                <View style={styles.modalContainer}>
+                    <View style={styles.modalContent}>
+                        <TouchableOpacity onPress={toggleUserOptionsModal}>
+                            <Icon name={'close'} style={styles.closeButton}/>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            navigation.navigate("UserDetailScreen");
+                            toggleUserOptionsModal();
+                        }}>
+                            <Text style={styles.modalOption}>Thông tin cá nhân</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            navigation.navigate("ChangePassword");
+                            toggleUserOptionsModal();
+                        }}>
+                            <Text style={styles.modalOption}>Đổi mật khẩu</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleLogout}>
+                            <Text style={styles.modalOption}>Đăng xuất</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
         </View>
+
     );
 };
 
@@ -233,6 +242,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#eeee',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    userIcon: {
+        paddingHorizontal: 320
     },
     imageContainer: {
         margin: 3,
@@ -338,7 +350,6 @@ const styles = StyleSheet.create({
         left: 0,
         width: 500,
         height: 100,
-
     },
     line: {
         height: 10,
@@ -358,54 +369,34 @@ const styles = StyleSheet.create({
         textAlign: 'center',
 
     },
-    modal: {
+    modalContainer: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)'
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
     },
-    modal1: {
+
+    modalContent: {
+        width: 200,
+        height: '100%',
         backgroundColor: 'white',
-        marginTop: '50%',
-        width: '100%',
-        height: '50%',
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
+        padding: 20,
     },
-    textheadermodal: {
-        fontSize: 25,
-        fontWeight: '600',
-        marginLeft: '45%'
+    modalOption: {
+        fontSize: 18,
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+        color: 'blue',
     },
-    textheadermodal2: {
-        fontSize: 30,
-        fontWeight: '600'
-    },
-    textlocmodal:{
-        borderWidth:1,
-        borderColor:'rgba(0,0,0,0.2)',
-        height:35,
-        width:100,
-        alignItems:'center',
-        justifyContent:'center',
-        borderRadius:25,
+
+    closeButton: {
+        fontSize: 18,
+        padding: 10,
+        alignSelf: 'flex-end',
+        color: 'red',
     },
     textInside: {
         marginLeft: 10
-    },
-    buttonmodalloc: {
-        height: 50,
-        width: 150,
-        borderWidth: 2,
-        borderColor: '#3399ff',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    headermodal: {
-        borderBottomWidth: 1,
-        height: 40,
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderColor: 'rgba(0,0,0,0.1)',
     },
     datetime: {
         flex: 1,
@@ -423,25 +414,16 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
-    modalContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-        backgroundColor: 'white',
-        padding: 20,
-        borderRadius: 10,
-        alignItems: 'center',
-        elevation: 5,
-    },
-    modalText: {
-        fontSize: 18,
-        marginBottom: 10,
-    },
     date: {
         marginHorizontal: 10 , color: '#3399ff', fontWeight: 'bold'
+    },
+    room: {
+        flex: 1,
+        flexDirection: 'row',
+        alignSelf: 'flex-start',
+        paddingBottom: 750,
+        paddingLeft: 10,
+        position: 'absolute',
     }
 });
 

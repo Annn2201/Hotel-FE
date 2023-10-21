@@ -15,7 +15,6 @@ import {Room} from "../services/interfaces/room";
 import {getRoomByRoomCodeApi} from "../services/room";
 import {bookRoomByUserApi} from "../services/room";
 import {listRoomsApi} from "../services/room";
-import axios from "axios/index";
 
 const DetailRoomScreen = ({navigation}) => {
     const roomCode = navigation.getParam("roomCode")
@@ -27,6 +26,8 @@ const DetailRoomScreen = ({navigation}) => {
 
     const [modalthuoctinh, setModalethuoctinh]  = useState (false)
     const [room, setRoom] = useState<Room>()
+    const [rooms, setRooms] = useState<Room[]>([])
+    const [roomSameTypes, setRoomSameTypes] = useState<Room[]>([])
     const motatcathuoctinh = () =>{
         setModalethuoctinh(true)
         setMorong(true)
@@ -47,6 +48,44 @@ const DetailRoomScreen = ({navigation}) => {
     useEffect(() => {
         getRoomById(roomCode)
     }, [roomCode])
+
+    const getSameRankRoom = async(roomRank: string) => {
+        try {
+            const { data } = await listRoomsApi(roomRank)
+            setRooms(data)
+        } catch (err) {
+            alert(err.response)
+        }
+    }
+    useEffect(() => {
+        getSameRankRoom(room?.roomRank)
+    }, [room?.roomRank])
+    const getSameTypeRoom = async(roomType: string) => {
+        try {
+            const { data } = await listRoomsApi(null,roomType)
+            setRoomSameTypes(data)
+        } catch (err) {
+            alert(err.response)
+        }
+    }
+    useEffect(() => {
+        getSameTypeRoom(room?.roomType)
+    }, [room?.roomType])
+
+    const renderRoom = ({ item }: { item: Room }) => {
+        return (
+            <TouchableOpacity onPress={() => {
+                navigation.navigate("DetailRoomScreen", { roomCode: item.roomCode, startDate: startDate, endDate: endDate  })
+            }}>
+                <View>
+
+                    <Image style={styles.image} source={{uri: item.images[0]}}></Image>
+                    <Text style={styles.textInside}>Tên phòng: {item.roomName}</Text>
+                    <Text style={styles.textInside}>Giá phòng: {item.pricePerNight}</Text>
+                </View>
+            </TouchableOpacity>
+
+        )}
 
 
     const bookRoomByUser = async (roomCode: string, startDate: string, endDate: string) => {
@@ -123,15 +162,29 @@ const DetailRoomScreen = ({navigation}) => {
                         </View>
                         <View style={{...styles.vachke,height:1}}></View>
                         <View>
-                            <View style={{ width: '100%', height: '20%', margin: 5}}>
-                                <Text style={styles.label}>Phòng phổ biến</Text>
-                                <View style={{ height: '650%', paddingBottom: 5}}>
-                                    {/*<FlatList*/}
-                                    {/*    horizontal*/}
-                                    {/*    style={styles.img2}*/}
-                                    {/*    data={rooms.slice(0, 5)}*/}
-                                    {/*    renderItem={(item) => renderRoom(item)}/>*/}
+                            <View style={{ width: '100%', height:'20%', margin: 5}}>
+                                <Text style={styles.label}>Phòng cùng hạng</Text>
+                                <View style={{ height: '400%', paddingBottom: 5}}>
+                                    <FlatList
+                                        horizontal
+                                        style={styles.img2}
+                                        data={rooms.slice(0, 5)}
+                                        renderItem={(item) => renderRoom(item)}/>
                                 </View>
+                                <Text style={{fontSize: 15, color: '#3399ff', margin: 10, textAlign:'right'}}>Xem thêm</Text>
+                            </View>
+                        </View>
+                        <View>
+                            <View style={{ width: '100%',height:'20%', marginTop: 10}}>
+                                <Text style={styles.label}>Phòng cùng loại</Text>
+                                <View style={{ height: '400%', paddingBottom: 5}}>
+                                    <FlatList
+                                        horizontal
+                                        style={styles.img2}
+                                        data={roomSameTypes.slice(0, 5)}
+                                        renderItem={(item) => renderRoom(item)}/>
+                                </View>
+                                <Text style={{fontSize: 15, color: '#3399ff', margin: 10, textAlign:'right'}}>Xem thêm</Text>
                             </View>
                         </View>
                     </View>
@@ -172,6 +225,15 @@ const styles = StyleSheet.create({
         borderTopLeftRadius:25,
         borderTopRightRadius:25
 
+    },
+    image: {
+        width: 150,
+        height: 150,
+        borderRadius: 10,
+        marginHorizontal: 10
+    },
+    textInside: {
+        marginLeft: 10
     },
     thanhhienthihinhanh:{
         position:'absolute',

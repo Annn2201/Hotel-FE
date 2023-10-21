@@ -10,6 +10,7 @@ const RegisterScreen = ({ navigation }) => {
 
   const registerSchema = Yup.object().shape({
     email: Yup.string().email('Email không hợp lệ').required('Email không được bỏ trống'),
+    identifyNumber: Yup.string().required('Số CCCD/Hộ chiếu không được bỏ trống'),
     username: Yup.string().required('Tên đăng nhập không được bỏ trống'),
     password: Yup.string().min(8, 'Mật khẩu phải có ít nhất 8 ký tự').required('Mật khẩu không được bỏ trống'),
     rePassword: Yup.string().oneOf([Yup.ref('password'), null], 'Mật khẩu không khớp').required('Nhập lại mật khẩu không được bỏ trống'),
@@ -19,14 +20,18 @@ const RegisterScreen = ({ navigation }) => {
     try {
       await registerSchema.validate(values, { abortEarly: false });
       const registerResponse = await registerApi({
+        lastName: values.lastName,
+        firstName: values.firstName,
         email: values.email,
+        identifyNumber: values.identifyNumber,
         username: values.username,
         password: values.password,
       });
 
       const { data } = registerResponse;
       console.log('Kết quả từ server:', data);
-      navigation.navigate('HomeScreen');
+      alert("Đã đăng kí thành công")
+      navigation.navigate("LoginScreen")
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const errorMessages = error.errors.join('\n');
@@ -42,12 +47,26 @@ const RegisterScreen = ({ navigation }) => {
         <View style={styles.formContainer}>
           <Text style={styles.mainText}>Đăng ký</Text>
           <Formik
-              initialValues={{ email: '', username: '', password: '', rePassword: '' }}
+              initialValues={{lastName: '', firstName: '', email: '',identifyNumber: '', username: '', password: '', rePassword: '' }}
               validationSchema={registerSchema}
               onSubmit={(values) => handleRegister(values)}
           >
             {({ handleChange, handleSubmit, values, errors, touched }) => (
                 <>
+                  <Text style={styles.label}>Họ</Text>
+                  <TextInput
+                      value={values.lastName}
+                      placeholder="Nhập họ "
+                      onChangeText={handleChange('lastName')}
+                      style={styles.input}
+                  />
+                  <Text style={styles.label}>Tên</Text>
+                  <TextInput
+                      value={values.firstName}
+                      placeholder="Nhập tên"
+                      onChangeText={handleChange('firstName')}
+                      style={styles.input}
+                  />
                   <Text style={styles.label}>Email</Text>
                   <TextInput
                       value={values.email}
@@ -57,6 +76,16 @@ const RegisterScreen = ({ navigation }) => {
                   />
                   {touched.email && errors.email ? (
                       <Text style={styles.error}>{errors.email}</Text>
+                  ) : null}
+                  <Text style={styles.label}>Số CCCD/Hộ chiếu</Text>
+                  <TextInput
+                      value={values.identifyNumber}
+                      placeholder="Nhập CCCD/Hộ chiếu"
+                      onChangeText={handleChange('identifyNumber')}
+                      style={styles.input}
+                  />
+                  {touched.identifyNumber && errors.identifyNumber ? (
+                      <Text style={styles.error}>{errors.identifyNumber}</Text>
                   ) : null}
 
                   <Text style={styles.label}>Tên đăng nhập</Text>
@@ -156,7 +185,7 @@ const styles = StyleSheet.create({
   buttons: {
     justifyContent: "space-between",
     width: "100%",
-    marginTop: 20,
+    marginTop: 10,
   },
   button: {
     backgroundColor: '#0066ff',
@@ -164,6 +193,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     borderRadius: 4,
     padding: 12,
+    marginTop: 10
   },
   error: {
     color: 'red',
