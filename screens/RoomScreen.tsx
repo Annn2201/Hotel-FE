@@ -112,6 +112,8 @@ const RoomScreen = ({navigation})=> {
             navigation.navigate("HomeScreen")
           }}><Image style={styles.img} source = {require('../assets/PngItem_2022960.png')}/></TouchableOpacity>
         </View>
+
+
         <View style={styles.header}>
           <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20}}>Danh sách phòng</Text>
           <Icon onPress={toggleUserOptionsModal} name={'bars'} size={30} color={'white'} style={{marginLeft: 160}}></Icon>
