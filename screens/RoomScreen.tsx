@@ -5,7 +5,7 @@ import { Room } from '../services/interfaces/room';
 import { listRoomsApi } from '../services/room';
 import axios from 'axios';
 import Icon from "react-native-vector-icons/FontAwesome";
-import {addTokenToAxios} from "../services/authentication";
+import {addTokenToAxios, deleteAccessToken, logoutApi} from "../services/authentication";
 
 const RoomScreen = ({navigation})=> {
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -16,6 +16,7 @@ const RoomScreen = ({navigation})=> {
   const startDate = navigation.getParam("startDate")
   const endDate = navigation.getParam("endDate")
   const nights = navigation.getParam("nights")
+  const roomRank = navigation.getParam("roomRank")
   const loc = () =>{
     setModalloc(true)
   }
@@ -74,13 +75,23 @@ const RoomScreen = ({navigation})=> {
       alert(errorMessage)
     }
   };
+
   const [showUserOptions, setShowUserOptions] = useState(false);
   const toggleUserOptionsModal = () => {
     setShowUserOptions(!showUserOptions);
   };
-  const handleLogout = () => {
-    navigation.navigate("LoginScreen")
-    addTokenToAxios("")
+  const handleLogout = async () => {
+    try {
+      const accessToken = await deleteAccessToken()
+      if (accessToken) {
+        const logout = await logoutApi()
+        navigation.navigate('LoginScreen');
+      } else {
+        alert("Lỗi")
+      }
+    } catch (error) {
+      alert('Error');
+    }
   };
   const renderRoom = ({ item }: { item: Room }) => {
     return (
@@ -251,19 +262,25 @@ const RoomScreen = ({navigation})=> {
       <Modal visible={showUserOptions} transparent animationType={"fade"}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
+
             <TouchableOpacity onPress={toggleUserOptionsModal}>
               <Icon name={'close'} style={styles.closeButton}/>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
-              navigation.navigate("UserDetailScreen");
-              toggleUserOptionsModal();
+              navigation.navigate("ListBookingRoomScreen")
+              toggleUserOptionsModal()
+            }}>
+              <Text style={styles.modalOption}>Phòng đã đặt</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+              navigation.navigate("UserDetailScreen")
+              toggleUserOptionsModal()
             }}>
               <Text style={styles.modalOption}>Thông tin cá nhân</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => {
-              // Điều hướng đến trang đổi mật khẩu
-              navigation.navigate("ChangePassword");
-              toggleUserOptionsModal(); // Đóng modal sau khi điều hướng
+              navigation.navigate("ChangePassword")
+              toggleUserOptionsModal()
             }}>
               <Text style={styles.modalOption}>Đổi mật khẩu</Text>
             </TouchableOpacity>

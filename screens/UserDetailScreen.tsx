@@ -16,9 +16,9 @@ import {getBookingRoomApi} from "../services/room";
 import {bookRoomByUserApi} from "../services/room";
 import {listRoomsApi} from "../services/room";
 import {User} from "../services/interfaces/user";
-import {getDetailUserApi} from "../services/user";
+import {getDetailUserApi, updateUserDetailApi} from "../services/user";
 import Icon from "react-native-vector-icons/FontAwesome";
-import {addTokenToAxios} from "../services/authentication";
+import {addTokenToAxios, deleteAccessToken, logoutApi} from "../services/authentication";
 import {StackActions} from "react-navigation";
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
@@ -27,13 +27,6 @@ const UserDetailScreen = ({navigation}) => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [user, setUser] = useState<User>()
     const [rooms, setRooms] = useState<Room[]>([])
-    const validationSchema = Yup.object().shape({
-        lastName: Yup.string().required('Họ là trường bắt buộc'),
-        firstName: Yup.string().required('Tên là trường bắt buộc'),
-        phone: Yup.string().required('Số điện thoại là trường bắt buộc'),
-        email: Yup.string().email('Email không hợp lệ').required('Email là trường bắt buộc'),
-        identifyNumber: Yup.string().required('Số CCCD/Hộ chiếu là trường bắt buộc'),
-    });
     const getUserByUsername = async() => {
         try {
             const { data } = await getDetailUserApi()
@@ -45,14 +38,30 @@ const UserDetailScreen = ({navigation}) => {
     useEffect(() => {
         getUserByUsername()
     }, [])
-
+    const updateUserDetail = async () => {
+        try {
+            const { data } = await updateUserDetailApi(user?.lastName, user?.firstName, user?.phone, user?.email)
+            alert("Cập nhật thông tin người dùng thành công")
+        } catch (err) {
+            alert("Cập nhật thông tin người dùng thất bại")
+        }
+    }
     const [showUserOptions, setShowUserOptions] = useState(false);
     const toggleUserOptionsModal = () => {
         setShowUserOptions(!showUserOptions);
     };
-    const handleLogout = () => {
-        navigation.navigate("LoginScreen")
-        addTokenToAxios("")
+    const handleLogout = async () => {
+        try {
+            const accessToken = await deleteAccessToken()
+            if (accessToken) {
+                const logout = await logoutApi()
+                navigation.navigate('LoginScreen');
+            } else {
+                alert("Lỗi")
+            }
+        } catch (error) {
+            alert('Error');
+        }
     };
     return (
         <KeyboardAvoidingView style={styles.container}>
@@ -125,7 +134,7 @@ const UserDetailScreen = ({navigation}) => {
                 <TouchableOpacity>
                     <Text onPress={() => navigation.goBack()} style={styles.buttonCancel}>Hủy</Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => updateUserDetail()}>
                     <Text style={styles.buttonConfirm}>Xác nhận</Text>
                 </TouchableOpacity>
             </View>
@@ -182,7 +191,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         textAlign: 'center',
         paddingTop: 10,
-        marginHorizontal: 15
     },
     buttonConfirm: {
         height: 40,
@@ -199,7 +207,7 @@ const styles = StyleSheet.create({
     buttonArea: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         height: 20,
         width: '100%',
     },

@@ -30,6 +30,12 @@ export const loginApi = ({ username, password }: LoginData) => {
         }
     });
 }
+export const logoutApi = () => {
+    return axios({
+        method: "POST",
+        url: BASE_URL.concat("/logout"),
+    });
+}
 export const setAccessToken = async (accessToken: string) => {
     if(!accessToken) {
         return false
@@ -53,13 +59,29 @@ export const getAccessToken = async() => {
     }
     return false
 }
-
 export const addTokenToAxios = (accessToken: string) => {
-    axios.interceptors.request.use(function (config) {
-        config.headers.Authorization = `Bearer ${accessToken}`
-        return config;
-      }, function (error) {
-        // Do something with request error
-        return Promise.reject(error);
-      })
+    axios.defaults.headers.common = {
+        'authorization': `Bearer ${accessToken}`,
+    }
+}
+
+export const deleteAccessToken = async () => {
+    try {
+        await SecureStore.deleteItemAsync('accessToken');
+        removeTokenFromAxios()
+        return true;
+    } catch (error) {
+        console.log("Lỗi khi xóa token", error);
+    }
+    return false;
+}
+
+export const removeTokenFromAxios = () => {
+    try {
+        delete axios.defaults.headers.common["authorization"];
+        return true;
+    } catch (error) {
+        console.log("Lỗi khi xóa token khỏi axios", error);
+    }
+    return false
 }
