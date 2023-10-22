@@ -12,17 +12,6 @@ const validationSchema = Yup.object().shape({
 
 const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
-  const checkAuthenticated = async () => {
-          try {
-            const accessToken = await getAccessToken()
-            if(accessToken) {
-              addTokenToAxios(accessToken)
-              navigation.navigate("HomeScreen")
-            }
-          } catch (error) {
-            alert("Sai mật khẩu hoặc passwword")
-          }
-        }
   const formik = useFormik({
     initialValues: {
       username: '',
@@ -39,7 +28,6 @@ const LoginScreen = ({ navigation }) => {
         const result = await setAccessToken(data.token)
             if(result) {
                 alert("Đăng nhập thành công!")
-                const accessToken = await getAccessToken()
                 navigation.navigate("HomeScreen")
             }else {
                 alert("Lỗi khi đăng nhập: Không thể lưu accesstoken")
@@ -50,7 +38,6 @@ const LoginScreen = ({ navigation }) => {
         }
     },
   });
-
   return (
     <View style={styles.container}>
       <View style={styles.formContainer}>

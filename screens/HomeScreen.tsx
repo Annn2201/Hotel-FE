@@ -5,10 +5,11 @@ import {View, Text, StyleSheet, Image, TouchableOpacity, Modal, FlatList, Status
 import 'moment/locale/vi';
 import Swiper from 'react-native-swiper';
 import {Room} from "../services/interfaces/room";
-import axios from "axios/index";
 import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import {listRoomsApi} from "../services/room";
-import {addTokenToAxios} from "../services/authentication";
+import {deleteAccessToken, getAccessToken, logoutApi, removeTokenFromAxios} from "../services/authentication";
+import * as SecureStore from 'expo-secure-store';
+import {request} from "axios";
 
 
 const HomeScreen = ({ navigation }) => {
@@ -16,36 +17,10 @@ const HomeScreen = ({ navigation }) => {
     const [rooms, setRooms] = useState<Room[]>([])
 
     const images = [
-        require('../assets/phongkhachsan.png'),
-        require('../assets/phongkhachsan2.png'),
-        require('../assets/phongkhachsan3.png'),
-        require('../assets/phongkhachsan4.png'),
-    ];
-    const images2 = [
-        {
-            id: '1',
-            source: require('../assets/phongkhachsan5.png'),
-        },
-        {
-            id: '2',
-            source: require('../assets/phongkhachsan6.png'),
-        },
-        {
-            id: '3',
-            source: require('../assets/phongkhachsan7.png'),
-        },
-        {
-            id: '4',
-            source: require('../assets/phongkhachsan2.png'),
-        },
-        {
-            id: '5',
-            source: require('../assets/phongkhachsan3.png'),
-        },
-        {
-            id: '6',
-            source: require('../assets/phongkhachsan4.png'),
-        },
+        require('../assets/popup_room-2-653x400.png'),
+        require('../assets/thang-hoi-vien-pearl-club_1655714114.jpg'),
+        require('../assets/nha-trang-1_1655872422.jpg'),
+        require('../assets/gia-phong-the-mira-3-653x409.jpg'),
     ];
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
@@ -56,13 +31,9 @@ const HomeScreen = ({ navigation }) => {
         DateTimePickerAndroid.open({
             value: startDate,
             onChange: (event, selectedDate) => {
-                // Kiểm tra nếu selectedDate lớn hơn hoặc bằng ngày hiện tại
                 if (selectedDate >= now) {
-                    // Ngày hợp lệ, thực hiện xử lý
                     setStartDate(selectedDate);
                 } else {
-                    // Ngày không hợp lệ, thông báo cho người dùng
-                    // Ví dụ: hiển thị một thông báo lỗi
                     alert('Không thể chọn ngày ở quá khứ');
                 }
             },
@@ -109,10 +80,20 @@ const HomeScreen = ({ navigation }) => {
     const toggleUserOptionsModal = () => {
         setShowUserOptions(!showUserOptions);
     };
-    const handleLogout = () => {
-        navigation.navigate("LoginScreen")
-        addTokenToAxios("")
+    const handleLogout = async () => {
+            try {
+                const accessToken = await deleteAccessToken()
+                if (accessToken) {
+                    const logout = await logoutApi()
+                    navigation.navigate('LoginScreen');
+                } else {
+                    alert("Lỗi")
+                }
+            } catch (error) {
+                alert('Error');
+            }
     };
+
     const renderRoom = ({ item }: { item: Room }) => {
         return (
             <TouchableOpacity onPress={() => {
@@ -198,12 +179,11 @@ const HomeScreen = ({ navigation }) => {
                             style={styles.img2}
                             data={rooms.slice(0, 5)}
                             renderItem={(item) => renderRoom(item)}/>
-
-                    <TouchableOpacity style={{flexDirection:'row-reverse'}} onPress={() => navigation.navigate('RoomScreen', {startDate: startDate.toDateString(), endDate: endDate.toDateString(), nights: nights})}>
-                        <View>
-                            <Text style={{fontSize: 20, color: '#3399ff', margin: 10}}>Tất cả phòng</Text>
-                        </View>
-                    </TouchableOpacity>
+                        <TouchableOpacity style={{flexDirection:'row-reverse'}} onPress={() => navigation.navigate('RoomScreen', {startDate: startDate.toDateString(), endDate: endDate.toDateString(), nights: nights})}>
+                            <View>
+                                <Text style={{fontSize: 20, color: '#3399ff', margin: 10}}>Tất cả phòng</Text>
+                            </View>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>

@@ -15,6 +15,8 @@ import {Room} from "../services/interfaces/room";
 import {getRoomByRoomCodeApi} from "../services/room";
 import {bookRoomByUserApi} from "../services/room";
 import {listRoomsApi} from "../services/room";
+import Icon from "react-native-vector-icons/FontAwesome";
+import {addTokenToAxios, deleteAccessToken, logoutApi} from "../services/authentication";
 
 const DetailRoomScreen = ({navigation}) => {
     const roomCode = navigation.getParam("roomCode")
@@ -71,6 +73,23 @@ const DetailRoomScreen = ({navigation}) => {
     useEffect(() => {
         getSameTypeRoom(room?.roomType)
     }, [room?.roomType])
+    const [showUserOptions, setShowUserOptions] = useState(false);
+    const toggleUserOptionsModal = () => {
+        setShowUserOptions(!showUserOptions);
+    };
+    const handleLogout = async () => {
+        try {
+            const accessToken = await deleteAccessToken()
+            if (accessToken) {
+                const logout = await logoutApi()
+                navigation.navigate('LoginScreen');
+            } else {
+                alert("Lỗi")
+            }
+        } catch (error) {
+            alert('Error');
+        }
+    };
 
     const renderRoom = ({ item }: { item: Room }) => {
         return (
@@ -116,8 +135,9 @@ const DetailRoomScreen = ({navigation}) => {
     return (
         <View style={{flex: 1}}>
             <TouchableOpacity onPress={handleNextImage}>
-                <Image source={{uri: imageUrls[currentImage]}} style={{ width: '100%', height: 200 }} />
+                <Image source={{uri: imageUrls[currentImage]}} style={{ width: '100%', height: 200, position: 'absolute' }} />
             </TouchableOpacity>
+            <Icon onPress={toggleUserOptionsModal} name={'bars'} size={30} color={'white'} style={{marginLeft: 370, marginTop: 10, }}></Icon>
             <View style = {styles.thanhhienthihinhanh}>
                 {imageUrls.map((_,sothutu) => (
                     <View key = {sothutu} style ={[styles.thutuanh,{backgroundColor : sothutu == currentImage ? 'rgba(0,0,255,0.5)': 'rgba(255,255,255,0.5)' }]}>
@@ -168,10 +188,9 @@ const DetailRoomScreen = ({navigation}) => {
                                     <FlatList
                                         horizontal
                                         style={styles.img2}
-                                        data={rooms.slice(0, 5)}
+                                        data={rooms}
                                         renderItem={(item) => renderRoom(item)}/>
                                 </View>
-                                <Text style={{fontSize: 15, color: '#3399ff', margin: 10, textAlign:'right'}}>Xem thêm</Text>
                             </View>
                         </View>
                         <View>
@@ -181,10 +200,10 @@ const DetailRoomScreen = ({navigation}) => {
                                     <FlatList
                                         horizontal
                                         style={styles.img2}
-                                        data={roomSameTypes.slice(0, 5)}
+                                        data={roomSameTypes}
                                         renderItem={(item) => renderRoom(item)}/>
                                 </View>
-                                <Text style={{fontSize: 15, color: '#3399ff', margin: 10, textAlign:'right'}}>Xem thêm</Text>
+                                <Text onPress={() => navigation.navigate("RoomScreen")} style={{fontSize: 15, color: '#3399ff', margin: 10, textAlign:'right'}}>Xem thêm</Text>
                             </View>
                         </View>
                     </View>
@@ -208,6 +227,37 @@ const DetailRoomScreen = ({navigation}) => {
                                     </TouchableOpacity>
                                     <View style={styles.modaltatcathuoctinh}>{thuoctinh(styles.othuoctinhtrongmodal)}</View>
                                 </View>
+                            </View>
+                        </View>
+                    </Modal>
+                    <Modal visible={showUserOptions} transparent animationType={"fade"}>
+                        <View style={styles.modalContainer1}>
+                            <View style={styles.modalContent1}>
+
+                                <TouchableOpacity onPress={toggleUserOptionsModal}>
+                                    <Icon name={'close'} style={styles.closeButton}/>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    navigation.navigate("ListBookingRoomScreen")
+                                    toggleUserOptionsModal()
+                                }}>
+                                    <Text style={styles.modalOption}>Phòng đã đặt</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    navigation.navigate("UserDetailScreen")
+                                    toggleUserOptionsModal()
+                                }}>
+                                    <Text style={styles.modalOption}>Thông tin cá nhân</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    navigation.navigate("ChangePassword")
+                                    toggleUserOptionsModal()
+                                }}>
+                                    <Text style={styles.modalOption}>Đổi mật khẩu</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={handleLogout}>
+                                    <Text style={styles.modalOption}>Đăng xuất</Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </Modal>
@@ -280,11 +330,12 @@ const styles = StyleSheet.create({
     },
     modalenutX:{
         backgroundColor:'rgb(00, 150, 220)',
-        alignItems:'center',
+        alignItems:'flex-end',
         height:'20%',
         justifyContent:'center',
         borderTopLeftRadius:20,
-        borderTopRightRadius:20
+        borderTopRightRadius:20,
+        paddingRight: 20
     },
     modaltatcathuoctinh:{
         flexDirection:'row',
@@ -294,6 +345,31 @@ const styles = StyleSheet.create({
     othuoctinhtrongmodal:{
         height:40,
         width:110
+    },
+    modalContainer1: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
+    },
+    modalContent1: {
+        width: 200,
+        height: '100%',
+        backgroundColor: 'white',
+        padding: 20,
+    },
+    modalOption: {
+        fontSize: 18,
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+        color: 'blue',
+    },
+
+    closeButton: {
+        fontSize: 18,
+        padding: 10,
+        alignSelf: 'flex-end',
+        color: 'red',
     },
     vachke:{
         backgroundColor:'rgba(128,128,128,0.1)',

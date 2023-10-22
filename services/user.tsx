@@ -9,20 +9,18 @@ export const getDetailUserApi = () => {
     })
 }
 
-export const getRoomByRoomCodeApi = (roomCode: string) => {
-    return axios({
-        method: "GET",
-        url: BASE_URL.concat("/rooms/").concat(roomCode)
-    })
-}
-
-export const bookRoomByUserApi = (roomCode: string, startDate: string, endDate: string) => {
+export const updateUserDetailApi = (lastName: string | undefined,
+                                    firstName: string | undefined,
+                                    phone: string | undefined,
+                                    email: string | undefined,) => {
     return axios({
         method: "POST",
-        url: BASE_URL.concat(`/rooms/${roomCode}/${startDate}/${endDate}`),
+        url: BASE_URL.concat("/user"),
         data: {
-            startDate: startDate,
-            endDate: endDate
+            lastName: lastName,
+            firstName: firstName,
+            phone: phone,
+            email: email
         }
-    });
+    })
 }

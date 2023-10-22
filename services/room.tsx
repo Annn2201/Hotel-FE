@@ -23,13 +23,13 @@ export const getRoomByRoomCodeApi = (roomCode: string) => {
 
 export const bookRoomByUserApi = (roomCode: string, startDate: string, endDate: string) => {
     return axios({
-            method: "POST",
-            url: BASE_URL.concat(`/rooms/${roomCode}/${startDate}/${endDate}`),
-            data: {
-                startDate: startDate,
-                endDate: endDate
-            }
-        });
+        method: "POST",
+        url: BASE_URL.concat(`/rooms/${roomCode}/${startDate}/${endDate}`),
+        data: {
+            startDate: startDate,
+            endDate: endDate
+        }
+    });
 }
 
 export const getBookingRoomApi = () => {

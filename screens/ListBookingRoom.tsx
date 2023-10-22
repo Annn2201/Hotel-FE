@@ -18,7 +18,7 @@ import {listRoomsApi} from "../services/room";
 import {User} from "../services/interfaces/user";
 import {getDetailUserApi} from "../services/user";
 import Icon from "react-native-vector-icons/FontAwesome";
-import {addTokenToAxios} from "../services/authentication";
+import {addTokenToAxios, deleteAccessToken, logoutApi} from "../services/authentication";
 
 const ListBookingRoomScreen = ({navigation}) => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -41,7 +41,6 @@ const ListBookingRoomScreen = ({navigation}) => {
             const listRoomsResponse = await getBookingRoomApi()
             const { data } = listRoomsResponse
             setRooms(data)
-            console.log(data)
         } catch(err) {
             const errorMessage = err.response
             alert(errorMessage)
@@ -73,16 +72,25 @@ const ListBookingRoomScreen = ({navigation}) => {
     const toggleUserOptionsModal = () => {
         setShowUserOptions(!showUserOptions);
     };
-    const handleLogout = () => {
-        navigation.navigate("LoginScreen")
-        addTokenToAxios("")
+    const handleLogout = async () => {
+        try {
+            const accessToken = await deleteAccessToken()
+            if (accessToken) {
+                const logout = await logoutApi()
+                navigation.navigate('LoginScreen');
+            } else {
+                alert("Lỗi")
+            }
+        } catch (error) {
+            alert('Error');
+        }
     };
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <View style={{ justifyContent: 'center', marginLeft: 10 }}>
                     <TouchableOpacity onPress={() => {
-                        navigation.navigate('HomeScreen');
+                        navigation.goBack();
                     }}>
                         <Image style={styles.img} source={require('../assets/PngItem_2022960.png')} />
                     </TouchableOpacity>
