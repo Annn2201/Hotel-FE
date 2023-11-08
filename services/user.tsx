@@ -1,6 +1,7 @@
 import axios from "axios";
-const BASE_URL = 'http://192.168.0.111:8080/api/v1'
-// const BASE_URL = 'http://192.168.1.99:8080/api/v1'
+// const BASE_URL = 'http://192.168.0.111:8080/api/v1'
+const BASE_URL = 'http://192.168.1.99:8080/api/v1'
+// const BASE_URL = 'http://172.20.10.4:8080/api/v1'
 
 export const getDetailUserApi = () => {
     return axios({

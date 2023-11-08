@@ -211,7 +211,7 @@ const DetailRoomScreen = ({navigation}) => {
                     <View style={{flexDirection:'row', justifyContent:'space-between'}}>
                         <Text style={{fontSize:18, fontWeight:'700', marginLeft: 5}}> Giá phòng mỗi đêm từ</Text>
                         <View style={{marginRight: 10}}>
-                            <Text style={{fontSize:18, fontWeight:'700',color:'rgb(00, 150, 220)'}}>{room?.pricePerNight} đ</Text>
+                            <Text style={{fontSize:18, fontWeight:'700',color:'rgb(00, 150, 220)'}}>{room?.pricePerNight} $</Text>
                             <Text style={{color:'rgba(128,128,128,0.7)'}}>Đã bao gồm thuế</Text>
                         </View>
                     </View>
