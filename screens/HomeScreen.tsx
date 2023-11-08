@@ -103,7 +103,7 @@ const HomeScreen = ({ navigation }) => {
 
                     <Image style={styles.image} source={{uri: item.images[0]}}></Image>
                     <Text style={styles.textInside}>Tên phòng: {item.roomName}</Text>
-                    <Text style={styles.textInside}>Giá phòng: {item.pricePerNight}</Text>
+                    <Text style={styles.textInside}>Giá phòng: {item.pricePerNight}$</Text>
                 </View>
             </TouchableOpacity>
         )}
@@ -219,7 +219,7 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#eeee',
+        backgroundColor: '#3399ff',
         alignItems: 'center',
         justifyContent: 'center',
     },

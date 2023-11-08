@@ -103,7 +103,7 @@ const RoomScreen = ({navigation})=> {
           <Text style={styles.roomName}>{item.roomName}</Text>
           <Text>Hạng phòng: {item.roomRank}</Text>
           <Text>Loại phòng: {item.roomType}</Text>
-          <Text style={styles.roomPrice}>{item.pricePerNight}</Text>
+          <Text style={styles.roomPrice}>{item.pricePerNight}$</Text>
         </View>
         <Image style={styles.image} source={{uri: item.images[0]}}></Image>
       </View>
@@ -464,6 +464,7 @@ const styles = StyleSheet.create({
   },
   listRoom: {
     flex: 1,
+    backgroundColor: '#ffffff'
   },
   image: {
     width: 120,

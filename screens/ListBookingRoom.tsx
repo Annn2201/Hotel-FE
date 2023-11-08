@@ -6,19 +6,14 @@ import {
     StyleSheet,
     Text,
     Modal,
-    ScrollView,
-    Animated,
-    SafeAreaView,
     FlatList
 } from 'react-native';
 import {Room} from "../services/interfaces/room";
-import {getBookingRoomApi} from "../services/room";
-import {bookRoomByUserApi} from "../services/room";
-import {listRoomsApi} from "../services/room";
+import {deleteBookingRoomWhenCheckout, getBookingRoomApi} from "../services/room";
 import {User} from "../services/interfaces/user";
 import {getDetailUserApi} from "../services/user";
 import Icon from "react-native-vector-icons/FontAwesome";
-import {addTokenToAxios, deleteAccessToken, logoutApi} from "../services/authentication";
+import {deleteAccessToken, logoutApi} from "../services/authentication";
 
 const ListBookingRoomScreen = ({navigation}) => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -47,10 +42,16 @@ const ListBookingRoomScreen = ({navigation}) => {
         }
         setIsLoading(false)
     }
+
     useEffect(() => {
         getRoomData()
     }, [])
     const renderRoom = ({ item }: { item: Room }) => {
+        if (item.isCheckOut) {
+            setTimeout(() => {
+                deleteBookingRoomWhenCheckout();
+            }, 2000);
+        }
         return (
             <TouchableOpacity style={styles.listItem} onPress={() => {
                 navigation.navigate("DetailRoomScreen", { roomCode: item.roomCode, startDate: item.startDate, endDate: item.endDate })
@@ -58,9 +59,21 @@ const ListBookingRoomScreen = ({navigation}) => {
                 <View style={styles.room}>
                     <View style={styles.roomDetail}>
                         <Text style={styles.roomName}>{item.roomName}</Text>
-                        <Text>Hạng phòng: {item.roomRank}</Text>
-                        <Text>Loại phòng: {item.roomType}</Text>
-                        <Text style={styles.roomPrice}>{item.pricePerNight}</Text>
+                        <Text style={styles.roomPrice}>Ngày đến: {item.startDate}</Text>
+                        <Text style={styles.roomPrice}>Ngày đi: {item.endDate}</Text>
+                        <View style={{flexDirection: 'row', paddingTop: 10}}>
+                            {item.isCheckOut ? (
+                                <TouchableOpacity style={styles.buttonCheckout}>
+                                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'red' }}>Check-out</Text>
+                                </TouchableOpacity>
+                            ) : item.isCheckIn ? (
+                                <TouchableOpacity style={styles.buttonCheckin}>
+                                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'green' }}>Check-in</Text>
+                                </TouchableOpacity>
+                            ) : <TouchableOpacity style={styles.buttonPending}>
+                                <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'black' }}>Pending</Text>
+                            </TouchableOpacity>}
+                        </View>
                     </View>
                     <Image style={styles.image} source={{uri: item.images[0]}}></Image>
                 </View>
@@ -166,6 +179,32 @@ const styles = StyleSheet.create({
         resizeMode:'contain',
         marginHorizontal:10
     },
+    buttonCheckin: {
+        borderWidth: 2,
+        borderColor: 'green',
+        borderRadius: 5,
+        width: 75,
+        marginRight: 10,
+        height: 40,
+        justifyContent: "center"
+    },
+    buttonCheckout: {
+        borderWidth: 2,
+        borderColor: 'red',
+        borderRadius: 5,
+        width: 75,
+        marginRight: 10,
+        height: 40,
+        justifyContent: "center"
+    },
+    buttonPending: {
+        borderWidth: 2,
+        borderRadius: 5,
+        width: 75,
+        marginRight: 10,
+        height: 40,
+        justifyContent: "center"
+    },
     user: {
         flexDirection: 'row',
         justifyContent: 'flex-start',
@@ -217,7 +256,7 @@ const styles = StyleSheet.create({
     roomPrice: {
         color: '#3399ff',
         fontWeight: 'bold',
-        fontSize: 30
+        fontSize: 14
     },
     listRoom: {
         flex: 1,

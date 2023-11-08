@@ -10,4 +10,6 @@ export interface Room {
     startDate: string
     endDate: string
     images: string[]
+    isCheckIn: boolean
+    isCheckOut: boolean
 }
