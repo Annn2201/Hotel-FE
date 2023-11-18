@@ -17,18 +17,19 @@ import {bookRoomByUserApi} from "../services/room";
 import {listRoomsApi} from "../services/room";
 import Icon from "react-native-vector-icons/FontAwesome";
 import {addTokenToAxios, deleteAccessToken, logoutApi} from "../services/authentication";
+import {DateTimePickerAndroid} from "@react-native-community/datetimepicker";
 
 const DetailRoomScreen = ({navigation}) => {
     const roomCode = navigation.getParam("roomCode")
-    const startDate = navigation.getParam("startDate")
-    const endDate = navigation.getParam("endDate")
+    const [startDate, setStartDate] = useState(navigation.getParam("startDate"));
+    const [endDate, setEndDate] = useState(navigation.getParam("endDate"));
+    const [now, setNow] = useState(new Date())
     const [imageUrls, setImageUrls] = useState([])
     const [currentImage, setCurrentImage] = useState(0);
     const [morong, setMorong] = useState(false);
-
     const [modalthuoctinh, setModalethuoctinh]  = useState (false)
     const [room, setRoom] = useState<Room>()
-    const [rooms, setRooms] = useState<Room[]>([])
+    const [roomSameRanks, setRoomSameRanks] = useState<Room[]>([])
     const [roomSameTypes, setRoomSameTypes] = useState<Room[]>([])
     const motatcathuoctinh = () =>{
         setModalethuoctinh(true)
@@ -38,6 +39,43 @@ const DetailRoomScreen = ({navigation}) => {
         setModalethuoctinh(false)
         setMorong(false)
     }
+    const showModeForStartDate = (currentMode) => {
+        const startDateAsDate = new Date(startDate);
+        DateTimePickerAndroid.open({
+            value: startDateAsDate,
+            onChange: (event, selectedDate) => {
+                if (selectedDate >= now) {
+                    setStartDate(selectedDate?.toDateString());
+                } else {
+                    alert('Không thể chọn ngày ở quá khứ');
+                }
+            },
+            mode: currentMode,
+            is24Hour: true,
+        });
+    };
+    const showModeForEndDate = (currentMode) => {
+        const endDateAsDate = new Date(endDate)
+        const startDateAsDate = new Date(startDate)
+        DateTimePickerAndroid.open({
+            value: endDateAsDate,
+            onChange: (event, selectedDate) => {
+                if (selectedDate >= startDateAsDate) {
+                    setEndDate(selectedDate?.toDateString());
+                } else {
+                    alert('Lỗi khi chọn ngày về');
+                }
+            },
+            mode: currentMode,
+            is24Hour: true,
+        });
+    };
+    const showStartDatepicker = () => {
+        showModeForStartDate('date');
+    };
+    const showEndDatepicker = () => {
+        showModeForEndDate('date');
+    };
     const getRoomById = async(roomCode: string) => {
         try {
             const { data } = await getRoomByRoomCodeApi(roomCode)
@@ -53,8 +91,8 @@ const DetailRoomScreen = ({navigation}) => {
 
     const getSameRankRoom = async(roomRank: string) => {
         try {
-            const { data } = await listRoomsApi(roomRank)
-            setRooms(data)
+            const { data } = await listRoomsApi(roomRank, null, null)
+            setRoomSameRanks(data)
         } catch (err) {
             alert(err.response)
         }
@@ -64,7 +102,7 @@ const DetailRoomScreen = ({navigation}) => {
     }, [room?.roomRank])
     const getSameTypeRoom = async(roomType: string) => {
         try {
-            const { data } = await listRoomsApi(null,roomType)
+            const { data } = await listRoomsApi(null,roomType, null)
             setRoomSameTypes(data)
         } catch (err) {
             alert(err.response)
@@ -158,20 +196,30 @@ const DetailRoomScreen = ({navigation}) => {
                         </View>
                         <View style={styles.vachke}></View>
                         <Text style={{fontSize:20, fontWeight:'700'}}>Giờ Nhận Phòng / Trả Phòng </Text>
-                        <View style={{flexDirection:'row',justifyContent:'space-between', marginTop:15}}>
+                        <TouchableOpacity onPress={showStartDatepicker} style={{flexDirection:'row',justifyContent:'space-between', marginTop:15}}>
                             <View style={{flexDirection:'row'}}>
                                 <Text >🕥</Text>
                                 <Text  style={{fontSize:18}} >Nhận phòng</Text>
                             </View>
-                            <Text style={{fontWeight:'700',fontSize:18}}>{startDate} 15:00 -3:00</Text>
-                        </View>
-                        <View style={{flexDirection:'row',justifyContent:'space-between', marginTop:15}}>
+                            {/*{newStartDate != startDate ? (*/}
+                            {/*    <Text style={styles.date}>{newStartDate.toDateString()}</Text>*/}
+                            {/*) : (*/}
+                                <Text style={styles.date}>{startDate}</Text>
+                            {/* )}*/}
+                            <Text style={{fontWeight:'700',fontSize:18}}>15:00 -3:00</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={showEndDatepicker} style={{flexDirection:'row',justifyContent:'space-between', marginTop:15}}>
                             <View style={{flexDirection:'row'}}>
                                 <Text >🕥</Text>
                                 <Text  style={{fontSize:18}} >Trả Phòng</Text>
                             </View>
-                            <Text style={{fontWeight:'700',fontSize:18}}>{endDate} Trước 11:00</Text>
-                        </View>
+                            {/*{newEndDate != endDate ? (*/}
+                            {/*    <Text style={styles.date}>{newEndDate.toDateString()}</Text>*/}
+                            {/*) : (*/}
+                                <Text style={styles.date}>{endDate}</Text>
+                            {/*)}*/}
+                            <Text style={{fontWeight:'700',fontSize:18}}>Trước 11:00</Text>
+                        </TouchableOpacity>
                         <View style={styles.vachke}></View>
                         <Text style={{fontSize:20, fontWeight:'700', marginVertical: 10}}>Mô Tả Phòng </Text>
                         <View style = {{height: 'auto'}}>
@@ -188,7 +236,7 @@ const DetailRoomScreen = ({navigation}) => {
                                     <FlatList
                                         horizontal
                                         style={styles.img2}
-                                        data={rooms}
+                                        data={roomSameRanks}
                                         renderItem={(item) => renderRoom(item)}/>
                                 </View>
                             </View>
@@ -215,8 +263,10 @@ const DetailRoomScreen = ({navigation}) => {
                             <Text style={{color:'rgba(128,128,128,0.7)'}}>Đã bao gồm thuế</Text>
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.chonphongbutton} onPress={ () => {bookRoomByUser(roomCode, startDate, endDate), console.log(startDate, endDate)}}>
-                        <Text>Chọn Phòng</Text>
+                    <TouchableOpacity style={styles.chonphongbutton} onPress={ () => {
+                        bookRoomByUser(roomCode, startDate, endDate);
+                    }}>
+                        <Text style={{color: 'white', fontSize: 18}}>Chọn Phòng</Text>
                     </TouchableOpacity>
                     <Modal visible={modalthuoctinh} animationType='fade' transparent={true}>
                         <View style={{ backgroundColor:'rgba(0,0,0,0.5)',flex:1,alignItems:'center',justifyContent:'center'}}>
@@ -266,6 +316,12 @@ const DetailRoomScreen = ({navigation}) => {
     );
 };
 const styles = StyleSheet.create({
+    date: {
+        marginHorizontal: 10 ,
+        color: '#3399ff',
+        fontWeight: 'bold',
+        fontSize: 18
+    },
     chitietphong:{
         backgroundColor:'white',
         position:'absolute',

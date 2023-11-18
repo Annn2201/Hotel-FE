@@ -4,11 +4,16 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { registerApi } from '../services/authentication';
+import {date} from "yup";
 
 const RegisterScreen = ({ navigation }) => {
+  const firstName = navigation.getParam("firstName")
+  const lastName = navigation.getParam("lastName")
   const [showPassword, setShowPassword] = useState(false);
 
   const registerSchema = Yup.object().shape({
+    firstName: Yup.string(),
+    lastName: Yup.string(),
     email: Yup.string().email('Email không hợp lệ').required('Email không được bỏ trống'),
     identifyNumber: Yup.string().required('Số CCCD/Hộ chiếu không được bỏ trống'),
     username: Yup.string().required('Tên đăng nhập không được bỏ trống'),
@@ -20,8 +25,8 @@ const RegisterScreen = ({ navigation }) => {
     try {
       await registerSchema.validate(values, { abortEarly: false });
       const registerResponse = await registerApi({
-        lastName: values.lastName,
         firstName: values.firstName,
+        lastName: values.lastName,
         email: values.email,
         identifyNumber: values.identifyNumber,
         username: values.username,
@@ -29,16 +34,10 @@ const RegisterScreen = ({ navigation }) => {
       });
 
       const { data } = registerResponse;
-      console.log('Kết quả từ server:', data);
       alert("Đã đăng kí thành công")
       navigation.navigate("LoginScreen")
     } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        const errorMessages = error.errors.join('\n');
-        alert(errorMessages);
-      } else {
-        alert(error.message);
-      }
+        alert("Ten dang nhap da ton tai");
     }
   };
 
@@ -47,26 +46,12 @@ const RegisterScreen = ({ navigation }) => {
         <View style={styles.formContainer}>
           <Text style={styles.mainText}>Đăng ký</Text>
           <Formik
-              initialValues={{lastName: '', firstName: '', email: '',identifyNumber: '', username: '', password: '', rePassword: '' }}
+              initialValues={{lastName, firstName, email: '',identifyNumber: '', username: '', password: '', rePassword: '' }}
               validationSchema={registerSchema}
               onSubmit={(values) => handleRegister(values)}
           >
             {({ handleChange, handleSubmit, values, errors, touched }) => (
                 <>
-                  <Text style={styles.label}>Họ</Text>
-                  <TextInput
-                      value={values.lastName}
-                      placeholder="Nhập họ "
-                      onChangeText={handleChange('lastName')}
-                      style={styles.input}
-                  />
-                  <Text style={styles.label}>Tên</Text>
-                  <TextInput
-                      value={values.firstName}
-                      placeholder="Nhập tên"
-                      onChangeText={handleChange('firstName')}
-                      style={styles.input}
-                  />
                   <Text style={styles.label}>Email</Text>
                   <TextInput
                       value={values.email}

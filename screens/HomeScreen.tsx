@@ -8,8 +8,6 @@ import {Room} from "../services/interfaces/room";
 import DateTimePicker, {DateTimePickerAndroid} from '@react-native-community/datetimepicker';
 import {listRoomsApi} from "../services/room";
 import {deleteAccessToken, getAccessToken, logoutApi, removeTokenFromAxios} from "../services/authentication";
-import * as SecureStore from 'expo-secure-store';
-import {request} from "axios";
 
 
 const HomeScreen = ({ navigation }) => {
@@ -395,7 +393,9 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     date: {
-        marginHorizontal: 10 , color: '#3399ff', fontWeight: 'bold'
+        marginHorizontal: 10 ,
+        color: '#3399ff',
+        fontWeight: 'bold'
     },
     room: {
         flex: 1,

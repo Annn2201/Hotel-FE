@@ -103,7 +103,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.loginTextgg}>Đăng nhập bằng Google</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.signupLink} onPress={() => navigation.navigate('RegisterScreen')}>
+        <TouchableOpacity style={styles.signupLink} onPress={() => navigation.navigate('UpdateUserDetailScreen')}>
           <Text>
             Chưa có tài khoản{' '}
             <Text style={styles.signupLinkText}>đăng ký</Text>
