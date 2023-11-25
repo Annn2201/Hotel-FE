@@ -29,8 +29,8 @@ const DetailRoomScreen = ({navigation}) => {
     const [morong, setMorong] = useState(false);
     const [modalthuoctinh, setModalethuoctinh]  = useState (false)
     const [room, setRoom] = useState<Room>()
-    const [roomSameRanks, setRoomSameRanks] = useState<Room[]>([])
-    const [roomSameTypes, setRoomSameTypes] = useState<Room[]>([])
+    const [roomSameRanks, setRoomSameRanks] = useState([]);
+    const [roomSameTypes, setRoomSameTypes] = useState([]);
     const motatcathuoctinh = () =>{
         setModalethuoctinh(true)
         setMorong(true)
@@ -201,11 +201,7 @@ const DetailRoomScreen = ({navigation}) => {
                                 <Text >🕥</Text>
                                 <Text  style={{fontSize:18}} >Nhận phòng</Text>
                             </View>
-                            {/*{newStartDate != startDate ? (*/}
-                            {/*    <Text style={styles.date}>{newStartDate.toDateString()}</Text>*/}
-                            {/*) : (*/}
                                 <Text style={styles.date}>{startDate}</Text>
-                            {/* )}*/}
                             <Text style={{fontWeight:'700',fontSize:18}}>15:00 -3:00</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={showEndDatepicker} style={{flexDirection:'row',justifyContent:'space-between', marginTop:15}}>
@@ -213,11 +209,7 @@ const DetailRoomScreen = ({navigation}) => {
                                 <Text >🕥</Text>
                                 <Text  style={{fontSize:18}} >Trả Phòng</Text>
                             </View>
-                            {/*{newEndDate != endDate ? (*/}
-                            {/*    <Text style={styles.date}>{newEndDate.toDateString()}</Text>*/}
-                            {/*) : (*/}
                                 <Text style={styles.date}>{endDate}</Text>
-                            {/*)}*/}
                             <Text style={{fontWeight:'700',fontSize:18}}>Trước 11:00</Text>
                         </TouchableOpacity>
                         <View style={styles.vachke}></View>
@@ -300,7 +292,7 @@ const DetailRoomScreen = ({navigation}) => {
                                     <Text style={styles.modalOption}>Thông tin cá nhân</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {
-                                    navigation.navigate("ChangePassword")
+                                    navigation.navigate("ChangePasswordScreen")
                                     toggleUserOptionsModal()
                                 }}>
                                     <Text style={styles.modalOption}>Đổi mật khẩu</Text>

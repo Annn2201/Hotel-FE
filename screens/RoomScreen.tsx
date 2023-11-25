@@ -1,4 +1,14 @@
-import { View,Text, SafeAreaView, StyleSheet,Image,TouchableOpacity, Modal, FlatList} from 'react-native';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Modal,
+  FlatList,
+  TouchableWithoutFeedback
+} from 'react-native';
 import {useEffect, useState} from 'react'
 import React from 'react';
 import { Room } from '../services/interfaces/room';
@@ -6,6 +16,7 @@ import { listRoomsApi } from '../services/room';
 import axios from 'axios';
 import Icon from "react-native-vector-icons/FontAwesome";
 import {addTokenToAxios, deleteAccessToken, logoutApi} from "../services/authentication";
+import { RadioButton } from 'react-native-paper';
 
 const RoomScreen = ({navigation})=> {
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -55,7 +66,7 @@ const RoomScreen = ({navigation})=> {
   const getRoomDataWithOutFilter = async () => {
     setIsLoading(true)
     try {
-      const listRoomsResponse = await listRoomsApi()
+      const listRoomsResponse = await listRoomsApi(null, null, 'population')
       const { data } = listRoomsResponse
       setRooms(data)
     } catch(err) {
@@ -170,7 +181,7 @@ const RoomScreen = ({navigation})=> {
           <View style= {styles.modal1}>
             <View style = {styles.headermodal}>
               <Text style= {styles.textheadermodal}>Lọc</Text>
-              <TouchableOpacity style= {{marginLeft:'33%'}} onPress={(dongloc)}><Text style={styles.textheadermodal2}>X</Text></TouchableOpacity>
+              <TouchableOpacity style= {{marginLeft:'33%'}} onPress={(dongloc)}><Icon name={'close'} style={styles.closeButton}/></TouchableOpacity>
             </View>
             <View style={{ marginVertical: 15, borderColor: 'rgba(0,0,0,0.1)', borderBottomWidth: 10, height: 150 }}>
               <Text style={{ fontSize: 20, fontWeight: 'bold', marginHorizontal: 10 }}>Hạng phòng</Text>
@@ -193,25 +204,27 @@ const RoomScreen = ({navigation})=> {
                   <Text style={{ marginHorizontal: 10 }}>Bạn đã chọn phòng {selectedRoomRank}</Text>
               }
             </View>
-            <View style={{borderBottomWidth:10,borderColor:'rgba(0,0,0,0.1)', height: 150}}>
-              <Text style = {{fontSize:20,fontWeight:'bold', marginHorizontal: 10 }}>Loại Phòng</Text>
-              <View style={{marginLeft:30,marginBottom:30}}>
-              <TouchableOpacity onPress={() => {handleRoomTypeSelect('SINGLE BEDROOM'), setIsPressed(true)}}>
-              <Text>1 giường đơn</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => {handleRoomTypeSelect('TWIN BEDROOM'), setIsPressed(true)}}>
-                <Text>2 giường đơn</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => {handleRoomTypeSelect('DOUBLE BEDROOM'), setIsPressed(true)}}>
-                <Text>1 giường đôi</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => {handleRoomTypeSelect('TRIPLE BEDROOM'), setIsPressed(true)}}>
-                <Text>1 giường 3 hoặc 3 giường đơn</Text>
-              </TouchableOpacity>
-              {selectedRoomType && <Text >Bạn đã chọn phòng {selectedRoomType}</Text>}
+            <View style={{ borderBottomWidth: 10, borderColor: 'rgba(0,0,0,0.1)', height: 275 }}>
+              <Text style={{ fontSize: 20, fontWeight: 'bold', marginHorizontal: 10 }}>Loại Phòng</Text>
+              <View>
+                <RadioButton.Group onValueChange={(value) => handleRoomTypeSelect(value)} value={selectedRoomType}>
+                  <TouchableOpacity>
+                    <RadioButton.Item label="1 giường đơn" value="SINGLE BEDROOM" />
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <RadioButton.Item label="2 giường đơn" value="TWIN BEDROOM" />
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <RadioButton.Item label="1 giường đôi" value="DOUBLE BEDROOM" />
+                  </TouchableOpacity>
+                  <TouchableOpacity>
+                    <RadioButton.Item label="1 giường 3 hoặc 3 giường đơn" value="TRIPLE BEDROOM" />
+                  </TouchableOpacity>
+                </RadioButton.Group>
+                {selectedRoomType && <Text style={{marginLeft: 20}}>Bạn đã chọn phòng {selectedRoomType}</Text>}
               </View>
             </View>
-            <View style={{height: 100, backgroundColor:'white', flexDirection:'row', justifyContent:'space-evenly', marginTop: 15}}>
+            <View style={{height: 150, backgroundColor:'white', flexDirection:'row', justifyContent:'space-evenly'}}>
               <TouchableOpacity
                   onPress={() => {setSelectedRoomRank(null), setSelectedRoomType(null), setIsPressed(false), getRoomDataWithOutFilter()}}>
                 <View style={styles.buttonmodalloc}>
@@ -222,6 +235,7 @@ const RoomScreen = ({navigation})=> {
                                 // onPressOut={handlePressOut}
                                 onPress={applyFilters}>
                   <View style={{height:50,
+                    marginTop: 15,
                     width:150,
                     borderRadius: 10,
                     justifyContent:'center',
@@ -259,36 +273,37 @@ const RoomScreen = ({navigation})=> {
           </View>
         </View>
       </Modal>
-      <Modal visible={showUserOptions} transparent animationType={"fade"}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-
-            <TouchableOpacity onPress={toggleUserOptionsModal}>
-              <Icon name={'close'} style={styles.closeButton}/>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate("ListBookingRoomScreen")
-              toggleUserOptionsModal()
-            }}>
-              <Text style={styles.modalOption}>Phòng đã đặt</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate("UserDetailScreen")
-              toggleUserOptionsModal()
-            }}>
-              <Text style={styles.modalOption}>Thông tin cá nhân</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              navigation.navigate("ChangePassword")
-              toggleUserOptionsModal()
-            }}>
-              <Text style={styles.modalOption}>Đổi mật khẩu</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleLogout}>
-              <Text style={styles.modalOption}>Đăng xuất</Text>
-            </TouchableOpacity>
+      <Modal visible={showUserOptions} transparent animationType="fade" onRequestClose={toggleUserOptionsModal}>
+        <TouchableWithoutFeedback onPress={toggleUserOptionsModal}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <TouchableOpacity onPress={toggleUserOptionsModal}>
+                <Icon name={'close'} style={styles.closeButton}/>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                navigation.navigate("ListBookingRoomScreen");
+                toggleUserOptionsModal();
+              }}>
+                <Text style={styles.modalOption}>Phòng đã đặt</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                navigation.navigate("UserDetailScreen");
+                toggleUserOptionsModal();
+              }}>
+                <Text style={styles.modalOption}>Thông tin cá nhân</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => {
+                navigation.navigate("ChangePasswordScreen");
+                toggleUserOptionsModal();
+              }}>
+                <Text style={styles.modalOption}>Đổi mật khẩu</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleLogout}>
+                <Text style={styles.modalOption}>Đăng xuất</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
@@ -385,7 +400,7 @@ const styles = StyleSheet.create({
     backgroundColor:'white',
     marginTop:'50%',
     width:'100%',
-    height: 400,
+    height: 500,
     borderTopLeftRadius:10,
     borderTopRightRadius:10,
   },
@@ -416,6 +431,7 @@ const styles = StyleSheet.create({
     borderRadius:25,
   },
   buttonmodalloc:{
+    marginTop: 15,
     height:50,
     width:150,
     borderWidth:2,
@@ -499,7 +515,7 @@ const styles = StyleSheet.create({
   },
 
   closeButton: {
-    fontSize: 18,
+    fontSize: 22,
     padding: 10,
     alignSelf: 'flex-end',
     color: 'red',

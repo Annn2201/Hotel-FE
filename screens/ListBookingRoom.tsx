@@ -6,7 +6,7 @@ import {
     StyleSheet,
     Text,
     Modal,
-    FlatList
+    FlatList, TouchableWithoutFeedback
 } from 'react-native';
 import {Room} from "../services/interfaces/room";
 import {deleteBookingRoomWhenCheckout, getBookingRoomApi} from "../services/room";
@@ -129,30 +129,31 @@ const ListBookingRoomScreen = ({navigation}) => {
                 data={rooms}
                 renderItem={(item) => renderRoom(item)}
             />
-            <Modal visible={showUserOptions} transparent animationType={"fade"}>
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
-                        <TouchableOpacity onPress={toggleUserOptionsModal}>
-                            <Icon name={'close'} style={styles.closeButton}/>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => {
-                            navigation.navigate("UserDetailScreen");
-                            toggleUserOptionsModal();
-                        }}>
-                            <Text style={styles.modalOption}>Thông tin cá nhân</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => {
-                            // Điều hướng đến trang đổi mật khẩu
-                            navigation.navigate("ChangePassword");
-                            toggleUserOptionsModal(); // Đóng modal sau khi điều hướng
-                        }}>
-                            <Text style={styles.modalOption}>Đổi mật khẩu</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={handleLogout}>
-                            <Text style={styles.modalOption}>Đăng xuất</Text>
-                        </TouchableOpacity>
+            <Modal visible={showUserOptions} transparent animationType="fade" onRequestClose={toggleUserOptionsModal}>
+                <TouchableWithoutFeedback onPress={toggleUserOptionsModal}>
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalContent}>
+                            <TouchableOpacity onPress={toggleUserOptionsModal}>
+                                <Icon name={'close'} style={styles.closeButton}/>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {
+                                navigation.navigate("UserDetailScreen");
+                                toggleUserOptionsModal();
+                            }}>
+                                <Text style={styles.modalOption}>Thông tin cá nhân</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => {
+                                navigation.navigate("ChangePasswordScreen");
+                                toggleUserOptionsModal();
+                            }}>
+                                <Text style={styles.modalOption}>Đổi mật khẩu</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleLogout}>
+                                <Text style={styles.modalOption}>Đăng xuất</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
+                </TouchableWithoutFeedback>
             </Modal>
         </View>
     );
@@ -288,7 +289,7 @@ const styles = StyleSheet.create({
     },
 
     closeButton: {
-        fontSize: 18,
+        fontSize: 22,
         padding: 10,
         alignSelf: 'flex-end',
         color: 'red',

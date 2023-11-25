@@ -10,6 +10,7 @@ import DetailRoomScreen from "./screens/DetailRoomScreen";
 import ListBookingRoomScreen from "./screens/ListBookingRoom";
 import UserDetailScreen from "./screens/UserDetailScreen";
 import UpdateUserDetailScreen from "./screens/UpdateUserDetailScreen";
+import ChangePasswordScreen from "./screens/ChangePasswordScreen";
 const StackNavigator = createStackNavigator({
   LoginScreen: {
     screen: LoginScreen
@@ -37,7 +38,10 @@ const StackNavigator = createStackNavigator({
   },
   UserDetailScreen: {
     screen: UserDetailScreen
-  }
+  },
+  ChangePasswordScreen: {
+    screen: ChangePasswordScreen
+  },
   }, {
     initialRouteName: "LoginScreen",
     defaultNavigationOptions: {
