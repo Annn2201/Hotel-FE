@@ -5,12 +5,12 @@ import HomeScreen from './screens/HomeScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import LoginScreen from './screens/LoginScreen';
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen';
-import TimeScreen from './screens/TimeScreen';
 import RoomScreen from './screens/RoomScreen';
 import DetailRoomScreen from "./screens/DetailRoomScreen";
-import ListBookingRoom from "./screens/ListBookingRoom";
 import ListBookingRoomScreen from "./screens/ListBookingRoom";
 import UserDetailScreen from "./screens/UserDetailScreen";
+import UpdateUserDetailScreen from "./screens/UpdateUserDetailScreen";
+import ChangePasswordScreen from "./screens/ChangePasswordScreen";
 const StackNavigator = createStackNavigator({
   LoginScreen: {
     screen: LoginScreen
@@ -27,8 +27,8 @@ const StackNavigator = createStackNavigator({
   ForgotPasswordScreen:{
     screen: ForgotPasswordScreen
   },
-  TimeScreen: {
-    screen: TimeScreen
+  UpdateUserDetailScreen: {
+    screen: UpdateUserDetailScreen
   },
   DetailRoomScreen: {
     screen: DetailRoomScreen
@@ -38,7 +38,10 @@ const StackNavigator = createStackNavigator({
   },
   UserDetailScreen: {
     screen: UserDetailScreen
-  }
+  },
+  ChangePasswordScreen: {
+    screen: ChangePasswordScreen
+  },
   }, {
     initialRouteName: "LoginScreen",
     defaultNavigationOptions: {
