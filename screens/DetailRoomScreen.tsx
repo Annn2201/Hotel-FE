@@ -9,7 +9,7 @@ import {
     ScrollView,
     Animated,
     SafeAreaView,
-    FlatList
+    FlatList, TouchableWithoutFeedback
 } from 'react-native';
 import {Room} from "../services/interfaces/room";
 import {getRoomByRoomCodeApi} from "../services/room";
@@ -175,7 +175,9 @@ const DetailRoomScreen = ({navigation}) => {
             <TouchableOpacity onPress={handleNextImage}>
                 <Image source={{uri: imageUrls[currentImage]}} style={{ width: '100%', height: 200, position: 'absolute' }} />
             </TouchableOpacity>
-            <Icon onPress={toggleUserOptionsModal} name={'bars'} size={30} color={'white'} style={{marginLeft: 370, marginTop: 10, }}></Icon>
+            <View style={styles.header}>
+                <Icon onPress={toggleUserOptionsModal} name={'bars'} size={30} color={'white'} style={styles.headerItem}></Icon>
+            </View>
             <View style = {styles.thanhhienthihinhanh}>
                 {imageUrls.map((_,sothutu) => (
                     <View key = {sothutu} style ={[styles.thutuanh,{backgroundColor : sothutu == currentImage ? 'rgba(0,0,255,0.5)': 'rgba(255,255,255,0.5)' }]}>
@@ -272,42 +274,51 @@ const DetailRoomScreen = ({navigation}) => {
                             </View>
                         </View>
                     </Modal>
-                    <Modal visible={showUserOptions} transparent animationType={"fade"}>
-                        <View style={styles.modalContainer1}>
-                            <View style={styles.modalContent1}>
-
-                                <TouchableOpacity onPress={toggleUserOptionsModal}>
-                                    <Icon name={'close'} style={styles.closeButton}/>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => {
-                                    navigation.navigate("ListBookingRoomScreen")
-                                    toggleUserOptionsModal()
-                                }}>
-                                    <Text style={styles.modalOption}>Phòng đã đặt</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => {
-                                    navigation.navigate("UserDetailScreen")
-                                    toggleUserOptionsModal()
-                                }}>
-                                    <Text style={styles.modalOption}>Thông tin cá nhân</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => {
-                                    navigation.navigate("ChangePasswordScreen")
-                                    toggleUserOptionsModal()
-                                }}>
-                                    <Text style={styles.modalOption}>Đổi mật khẩu</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={handleLogout}>
-                                    <Text style={styles.modalOption}>Đăng xuất</Text>
-                                </TouchableOpacity>
+                <Modal visible={showUserOptions} transparent animationType="fade" onRequestClose={toggleUserOptionsModal}>
+                        <TouchableWithoutFeedback onPress={toggleUserOptionsModal}>
+                            <View style={styles.modalContainer}>
+                                <View style={styles.modalContent}>
+                                    <TouchableOpacity onPress={toggleUserOptionsModal}>
+                                        <Icon name={'close'} style={styles.closeButton}/>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {
+                                        navigation.navigate("ListBookingRoom");
+                                        toggleUserOptionsModal();
+                                    }}>
+                                        <Text style={styles.modalOption}>Phòng đã đặt</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {
+                                        navigation.navigate("UserDetailScreen");
+                                        toggleUserOptionsModal();
+                                    }}>
+                                        <Text style={styles.modalOption}>Thông tin cá nhân</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={() => {
+                                        navigation.navigate("ChangePasswordScreen");
+                                        toggleUserOptionsModal();
+                                    }}>
+                                        <Text style={styles.modalOption}>Đổi mật khẩu</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={handleLogout}>
+                                        <Text style={styles.modalOption}>Đăng xuất</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                        </View>
+                        </TouchableWithoutFeedback>
                     </Modal>
                 </View>
         </View>
     );
 };
 const styles = StyleSheet.create({
+    header: {
+        height:60,
+        flexDirection:'row-reverse',
+    },
+    headerItem:{
+        marginLeft: 360,
+        marginVertical: 15,
+    },
     date: {
         marginHorizontal: 10 ,
         color: '#3399ff',
@@ -448,16 +459,22 @@ const styles = StyleSheet.create({
     },
     modalContainer: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
     },
+
     modalContent: {
+        width: 200,
+        height: '100%',
         backgroundColor: 'white',
         padding: 20,
-        borderRadius: 10,
-        alignItems: 'center',
-        elevation: 5,
+    },
+    modalOption: {
+        fontSize: 18,
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ddd',
+        color: 'blue',
     },
     modalText: {
         fontSize: 18,
