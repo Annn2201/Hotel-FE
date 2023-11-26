@@ -121,11 +121,13 @@ const HomeScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
             <StatusBar barStyle= 'default'/>
-            <Image source={require('../assets/1000_F_225066596_oxfYvjQat3pPSFvrjplG8AUC3ZTmJxHy.jpg')} style={styles.logo} />
-            <TouchableOpacity style={styles.room} onPress={() => navigation.navigate("ListBookingRoomScreen")}>
-                <Icon name={'home'} size={40} color={'white'}></Icon>
-                <Icon style={styles.userIcon} name={'user'} size={40} color={'white'} onPress={toggleUserOptionsModal}></Icon>
-            </TouchableOpacity>
+            <View style={styles.header}>
+                <Image source={require('../assets/1000_F_225066596_oxfYvjQat3pPSFvrjplG8AUC3ZTmJxHy.jpg')} style={styles.logo} />
+                <TouchableOpacity style={styles.headerItem} >
+                    <Icon name={'home'} size={40} color={'white'} onPress={() => navigation.navigate("ListBookingRoomScreen")}></Icon>
+                    <Icon name={'user'} size={40} color={'white'} onPress={toggleUserOptionsModal}></Icon>
+                </TouchableOpacity>
+            </View>
             <View style={styles.formContainer}>
                 <View style={styles.dateHeader}>
                     <Text style={{textAlign: 'center', fontSize: 20, margin:10, fontWeight: 'bold'}}>Chọn ngày đến và đi</Text>
@@ -183,7 +185,7 @@ const HomeScreen = ({ navigation }) => {
                         fontSize: 18,
                         marginBottom: 5,
                         marginHorizontal: 10}}>Phòng phổ biến</Text>
-                    <View style={{ height: '650%', paddingBottom: 5, backgroundColor: 'white', width: '100%'}}>
+                    <View style={{ height: '750%', paddingBottom: 5, backgroundColor: 'white', width: '100%'}}>
                         <FlatList
                             horizontal
                             style={styles.img2}
@@ -231,9 +233,10 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexDirection: "column",
         backgroundColor: '#3399ff',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
     },
     userIcon: {
         paddingHorizontal: 320
@@ -271,6 +274,7 @@ const styles = StyleSheet.create({
 
     },
     bot: {
+        paddingVertical: 10,
         backgroundColor: '#ffffff',
         height: '25%',
     },
@@ -418,7 +422,19 @@ const styles = StyleSheet.create({
         paddingBottom: 750,
         paddingLeft: 10,
         position: 'absolute',
-    }
+    },
+    header: {
+        height:60,
+        flexDirection:'row',
+    },
+    headerItem:{
+        flex: 1,
+        marginHorizontal: 15,
+        flexDirection:'row',
+        justifyContent:'space-between',
+        alignSelf:'center',
+        height:30
+    },
 });
 
 export default HomeScreen;

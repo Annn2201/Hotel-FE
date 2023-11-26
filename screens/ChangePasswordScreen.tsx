@@ -73,9 +73,6 @@ const ChangePasswordScreen = ({ navigation }) => {
                     </TouchableOpacity>
                   </View>
                 </View>
-                <View style={styles.user}>
-                  <Image source={require('../assets/facebook.png')} style={styles.userAvatar} />
-                </View>
                 <View style={styles.userInfor}>
                   <Text style={styles.userTitle}>Mật khẩu cũ</Text>
                   <TextInput
