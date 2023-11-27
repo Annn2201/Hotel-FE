@@ -59,8 +59,18 @@ const RoomScreen = ({navigation})=> {
   };
 
   const [chonsapxep, setChonsapxep] = useState(1)
-  const thaydoisapxep = (id)=>{
+  const thaydoisapxep = async (id)=>{
     setChonsapxep(id)
+    if (chonsapxep == 2) {
+      try {
+        const listRoomsResponse = await listRoomsApi(null, null, 'pricePerNight')
+        const { data } = listRoomsResponse
+        setRooms(data)
+      } catch(err) {
+        const errorMessage = err.response
+        alert(errorMessage)
+      }
+    }
   } 
 
   const getRoomDataWithOutFilter = async () => {

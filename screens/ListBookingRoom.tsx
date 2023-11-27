@@ -70,9 +70,14 @@ const ListBookingRoomScreen = ({navigation}) => {
                                 <TouchableOpacity style={styles.buttonCheckin}>
                                     <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'green' }}>Check-in</Text>
                                 </TouchableOpacity>
-                            ) : <TouchableOpacity style={styles.buttonPending}>
-                                <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'black' }}>Pending</Text>
-                            </TouchableOpacity>}
+                            ) : <View style={styles.pendingView}>
+                                <TouchableOpacity style={styles.buttonPending}>
+                                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'black' }}>Pending</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.buttonPending}>
+                                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'red' }}>Xóa</Text>
+                                </TouchableOpacity>
+                                </View>}
                         </View>
                     </View>
                     <Image style={styles.image} source={{uri: item.images[0]}}></Image>
@@ -179,6 +184,10 @@ const styles = StyleSheet.create({
         width:15,
         resizeMode:'contain',
         marginHorizontal:10
+    },
+    pendingView: {
+      flex: 1,
+      flexDirection: 'row',
     },
     buttonCheckin: {
         borderWidth: 2,
