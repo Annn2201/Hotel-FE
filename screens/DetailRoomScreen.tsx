@@ -260,7 +260,7 @@ const DetailRoomScreen = ({navigation}) => {
                     <TouchableOpacity style={styles.chonphongbutton} onPress={ () => {
                         bookRoomByUser(roomCode, startDate, endDate);
                     }}>
-                        <Text style={{color: 'white', fontSize: 18}}>Chọn Phòng</Text>
+                        <Text style={{color: 'white', fontSize: 18}}>Đặt phòng</Text>
                     </TouchableOpacity>
                     <Modal visible={modalthuoctinh} animationType='fade' transparent={true}>
                         <View style={{ backgroundColor:'rgba(0,0,0,0.5)',flex:1,alignItems:'center',justifyContent:'center'}}>
