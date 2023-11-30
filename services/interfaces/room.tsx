@@ -1,6 +1,7 @@
 import { DateData } from "react-native-calendars"
 
 export interface Room {
+    roomUserId: string
     roomCode: string
     pricePerNight: string
     roomType: string

@@ -9,7 +9,7 @@ import {
     FlatList, TouchableWithoutFeedback
 } from 'react-native';
 import {Room} from "../services/interfaces/room";
-import {deleteBookingRoomWhenCheckout, getBookingRoomApi} from "../services/room";
+import {deleteBookingRoomByRoomUserId, deleteBookingRoomWhenCheckout, getBookingRoomApi} from "../services/room";
 import {User} from "../services/interfaces/user";
 import {getDetailUserApi} from "../services/user";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -41,6 +41,16 @@ const ListBookingRoomScreen = ({navigation}) => {
             alert(errorMessage)
         }
         setIsLoading(false)
+    }
+
+    const deleteRoomByRoomUserId = async (roomUserId: string) => {
+        try {
+            const deleteRoom = await deleteBookingRoomByRoomUserId(roomUserId)
+            alert("Đã hủy phòng thành công")
+        } catch (err) {
+            const error = err.response
+            alert(error)
+        }
     }
 
     useEffect(() => {
@@ -75,7 +85,7 @@ const ListBookingRoomScreen = ({navigation}) => {
                                     <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'black' }}>Pending</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.buttonPending}>
-                                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'red' }}>Xóa</Text>
+                                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'red' }} onPress={() => deleteRoomByRoomUserId(item.roomUserId)}>Xóa</Text>
                                 </TouchableOpacity>
                                 </View>}
                         </View>

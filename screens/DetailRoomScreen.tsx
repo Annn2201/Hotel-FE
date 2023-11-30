@@ -282,7 +282,7 @@ const DetailRoomScreen = ({navigation}) => {
                                         <Icon name={'close'} style={styles.closeButton}/>
                                     </TouchableOpacity>
                                     <TouchableOpacity onPress={() => {
-                                        navigation.navigate("ListBookingRoom");
+                                        navigation.navigate("ListBookingRoomScreen");
                                         toggleUserOptionsModal();
                                     }}>
                                         <Text style={styles.modalOption}>Phòng đã đặt</Text>
