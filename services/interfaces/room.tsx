@@ -1,4 +1,3 @@
-import { DateData } from "react-native-calendars"
 
 export interface Room {
     roomUserId: string

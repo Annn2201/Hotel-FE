@@ -63,7 +63,7 @@ const RoomScreen = ({navigation})=> {
     setChonsapxep(id)
     if (chonsapxep == 2) {
       try {
-        const listRoomsResponse = await listRoomsApi(null, null, 'pricePerNight')
+        const listRoomsResponse = await listRoomsApi(selectedRoomRank, selectedRoomType, 'pricePerNight')
         const { data } = listRoomsResponse
         setRooms(data)
       } catch(err) {
@@ -78,7 +78,7 @@ const RoomScreen = ({navigation})=> {
   const getRoomDataWithOutFilter = async () => {
     setIsLoading(true)
     try {
-      const listRoomsResponse = await listRoomsApi(null, null, 'population')
+      const listRoomsResponse = await listRoomsApi( selectedRoomRank,selectedRoomType,'population')
       const { data } = listRoomsResponse
       setRooms(data)
     } catch(err) {
