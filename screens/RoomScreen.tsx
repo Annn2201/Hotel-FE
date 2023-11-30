@@ -70,6 +70,8 @@ const RoomScreen = ({navigation})=> {
         const errorMessage = err.response
         alert(errorMessage)
       }
+    } else {
+      await getRoomDataWithOutFilter()
     }
   } 
 
@@ -176,7 +178,11 @@ const RoomScreen = ({navigation})=> {
         </View>
         <TouchableOpacity onPress={(sapxep)}>
           <View style= {styles.searchsmall2}>
-            <Text style = {styles.text3}>⇅ Phổ Biến Nhất </Text>
+            { chonsapxep == 2 ? (
+                <Text style = {styles.text3} >⇅ Giá thấp nhất</Text>
+            ) : (
+                <Text style = {styles.text3}>⇅ Phổ Biến Nhất</Text>
+            )}
           </View>
         </TouchableOpacity> 
       </View>
@@ -264,7 +270,7 @@ const RoomScreen = ({navigation})=> {
           <View style={styles.modal2}>
             <View style = {styles.headermodal}>
                 <Text style= {{...styles.textheadermodal, marginLeft:'38%'}}>Sắp xếp</Text>
-              <TouchableOpacity style= {{marginLeft:'25%'}} onPress={(dongsapxep)}><Text style={styles.textheadermodal2}>X</Text></TouchableOpacity>
+              <TouchableOpacity style= {{marginLeft:'25%'}} onPress={(dongsapxep)}><Icon name={'close'} style={styles.closeButton}/></TouchableOpacity>
             </View>
             <View>
               <TouchableOpacity  style ={[styles.viewloaisapxep,chonsapxep==1 && styles.viewloaisapxepduocchon ]} onPress ={()=> thaydoisapxep(1)}>

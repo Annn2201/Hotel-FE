@@ -1,6 +1,6 @@
 import axios from "axios";
 import {ChangePasswordData} from "./interfaces/changePasswordData";
-// const BASE_URL = 'http://192.168.0.111:8080/api/v1'
+// const BASE_URL = 'http://192.168.1.10:8080/api/v1'
 // const BASE_URL = 'http://192.168.1.99:8080/api/v1'
 // const BASE_URL = 'http://172.20.10.4:8080/api/v1'
 const BASE_URL = 'https://annoyed-driving-production.up.railway.app/api/v1'
