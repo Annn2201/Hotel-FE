@@ -85,7 +85,7 @@ const ListBookingRoomScreen = ({navigation}) => {
                                     <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'black' }}>Pending</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.buttonPending}>
-                                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'red' }} onPress={() => deleteRoomByRoomUserId(item.roomUserId)}>Xóa</Text>
+                                    <Text style={{ fontWeight: 'bold', textAlign: 'center', color: 'red' }} onPress={() => deleteRoomByRoomUserId(item.roomUserId)}>Y/c hủy phòng</Text>
                                 </TouchableOpacity>
                                 </View>}
                         </View>
